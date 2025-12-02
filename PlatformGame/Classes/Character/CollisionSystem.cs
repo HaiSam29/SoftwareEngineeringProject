@@ -7,9 +7,9 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlatformGame.Classes
+namespace PlatformGame.Classes.Character
 {
-    public class CollisionSystem: ICollisionSystem
+    public class CollisionSystem : ICollisionSystem
     {
         private readonly List<Rectangle> _colliders;
 

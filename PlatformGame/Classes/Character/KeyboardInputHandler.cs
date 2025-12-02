@@ -7,7 +7,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlatformGame.Classes
+namespace PlatformGame.Classes.Character
 {
     public class KeyboardInputHandler : IInputHandler
     {

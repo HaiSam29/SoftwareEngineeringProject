@@ -6,9 +6,9 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlatformGame.Classes
+namespace PlatformGame.Classes.Character
 {
-    public class PhysicsComponent: IPhysicsComponent
+    public class PhysicsComponent : IPhysicsComponent
     {
         private readonly float _gravity;
 
