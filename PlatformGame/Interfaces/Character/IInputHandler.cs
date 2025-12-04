@@ -10,7 +10,6 @@ namespace PlatformGame.Interfaces.Character
 {
     public interface IInputHandler
     {
-        Vector2 GetMovementDirection();
-        bool IsJumpPressed();
+        float GetMoveDirectionX();
     }
 }

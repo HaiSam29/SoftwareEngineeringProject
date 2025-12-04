@@ -9,9 +9,6 @@ namespace PlatformGame.Enums
     public enum CharacterState
     {
         Idle,
-        Running,
-        Jumping,
-        Falling,
-        Attacking
+        Running
     }
 }

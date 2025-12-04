@@ -1,6 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using PlatformGame.Classes.Character;
+using PlatformGame.Enums;
+using PlatformGame.Interfaces.Character;
+using System.Collections.Generic;
 
 namespace PlatformGame
 {
@@ -8,6 +12,8 @@ namespace PlatformGame
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private ICharacter _character;
+        private ISprite _sprite;
 
         public Game1()
         {
@@ -27,15 +33,35 @@ namespace PlatformGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            var idleTexture = Content.Load<Texture2D>("idle");
+            var runningTexture = Content.Load<Texture2D>("Running");
+
+            var collision = new CollisionSystem();
+            collision.AddCollider(new Rectangle(0, 450, 800, 50));
+
+            var strategies = new List<IMovementStrategy> { new GroundedMovementStrategy() };
+
+            _character = new Character(
+                new Vector2(100, 450 - 48),
+                new PhysicsComponent(800f),
+                new KeyboardInputHandler(),
+                collision,
+                strategies,
+                48, 48, 150f
+            );
+
+            _sprite = new Sprite(48, 48);
+            _sprite.RegisterAnimation(CharacterState.Idle, idleTexture, 4, 0.2f);
+            _sprite.RegisterAnimation(CharacterState.Running, runningTexture, 6, 0.12f);
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
 
-            // TODO: Add your update logic here
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _character.Update(deltaTime);
+            _sprite.Update(_character.CurrentState, deltaTime);
 
             base.Update(gameTime);
         }
@@ -43,9 +69,13 @@ namespace PlatformGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            _spriteBatch.Begin();
 
-            // TODO: Add your drawing code here
+            _spriteBatch.Draw(_sprite.CurrentTexture, _character.Position,
+                _sprite.CurrentFrame, Color.White, 0f, Vector2.Zero, 1f,
+                _character.FacingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
 
+            _spriteBatch.End();
             base.Draw(gameTime);
         }
     }

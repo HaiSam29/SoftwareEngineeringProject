@@ -11,68 +11,25 @@ namespace PlatformGame.Classes.Character
 {
     public class CollisionSystem : ICollisionSystem
     {
-        private readonly List<Rectangle> _colliders;
+        private readonly List<Rectangle> _colliders = new();
 
-        public CollisionSystem()
-        {
-            _colliders = new List<Rectangle>();
-        }
+        public void AddCollider(Rectangle collider) => _colliders.Add(collider);
 
-        public void AddCollider(Rectangle collider)
-        {
-            _colliders.Add(collider);
-        }
-
-        public bool CheckGround(Rectangle hitbox, out float groundY)
+        public bool IsGrounded(Rectangle hitbox, out float groundY)
         {
             groundY = 0;
-
             foreach (var collider in _colliders)
             {
-                if (hitbox.Intersects(collider) && hitbox.Bottom >= collider.Top && hitbox.Bottom <= collider.Top + 20)
+                // simpele check: onderkant van hitbox raakt/overlapt bovenkant van collider
+                if (hitbox.Bottom >= collider.Top &&
+                    hitbox.Bottom <= collider.Top + 5 &&    // kleine marge
+                    hitbox.Right > collider.Left &&
+                    hitbox.Left < collider.Right)
                 {
                     groundY = collider.Top;
                     return true;
                 }
             }
-
-            return false;
-        }
-
-        public bool CheckCeiling(Rectangle hitbox, out float ceilingY)
-        {
-            ceilingY = 0;
-
-            foreach (var collider in _colliders)
-            {
-                if (hitbox.Intersects(collider) && hitbox.Top <= collider.Bottom)
-                {
-                    ceilingY = collider.Bottom;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public bool CheckWall(Rectangle hitbox, Vector2 velocity)
-        {
-            foreach (var collider in _colliders)
-            {
-                if (hitbox.Intersects(collider))
-                {
-                    if (velocity.X > 0 && hitbox.Right > collider.Left)
-                    {
-                        return true;
-                    }
-
-                    if (velocity.X < 0 && hitbox.Left < collider.Right)
-                    {
-                        return true;
-                    }
-                }
-            }
-
             return false;
         }
     }

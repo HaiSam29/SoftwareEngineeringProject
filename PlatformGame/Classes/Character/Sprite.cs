@@ -13,13 +13,10 @@ namespace PlatformGame.Classes.Character
 {
     public class Sprite: ISprite
     {
-        private readonly Dictionary<CharacterState, AnimationConfig> _animations;
-
-        private readonly int _frameWidth;
-        private readonly int _frameHeight;
-
-        private float _frameTimer = 0f;
-        private int _currentFrameIndex = 0;
+        private readonly Dictionary<CharacterState, AnimationData> _animations = new();
+        private readonly int _frameWidth, _frameHeight;
+        private float _frameTimer;
+        private int _currentFrame;
         private CharacterState _lastState;
 
         public Rectangle CurrentFrame { get; private set; }
@@ -27,53 +24,48 @@ namespace PlatformGame.Classes.Character
 
         public Sprite(int frameWidth, int frameHeight)
         {
-            _frameHeight = frameHeight;
             _frameWidth = frameWidth;
-            _animations = new Dictionary<CharacterState, AnimationConfig>();
+            _frameHeight = frameHeight;
         }
 
-        // Configuratie from the outside
-        public void RegisterAnimation(CharacterState state, AnimationConfig config)
+        public void RegisterAnimation(CharacterState state, Texture2D texture, int frameCount, float frameDuration)
         {
-            _animations[state] = config;
-        }
-
-        // Convenience method
-        public void RegisterAnimation(CharacterState state, Texture2D texture, int frameCount, float frameDuration= 0.1f)
-        {
-            RegisterAnimation(state, new AnimationConfig(texture, frameCount, frameDuration));
+            _animations[state] = new AnimationData
+            {
+                Texture = texture,
+                FrameCount = frameCount,
+                FrameDuration = frameDuration
+            };
         }
 
         public void Update(CharacterState state, float deltaTime)
         {
-            // State changed? reset animation
+            if (!_animations.TryGetValue(state, out var anim)) return;
+
             if (state != _lastState)
             {
-                _currentFrameIndex = 0;
-                _frameTimer = 0f;
+                _currentFrame = 0;
+                _frameTimer = 0;
                 _lastState = state;
             }
 
-            if (!_animations.ContainsKey(state))
-            {
-                return;
-            }
-
-            var config = _animations[state];
-            CurrentTexture = config.Texture;
-
+            CurrentTexture = anim.Texture;
             _frameTimer += deltaTime;
 
-            if (_frameHeight >= config.FrameDuration)
+            if (_frameTimer >= anim.FrameDuration)
             {
-                _frameTimer -= config.FrameDuration;
-                _currentFrameIndex++;
-
-                if (_currentFrameIndex >= config.FrameCount)
-                    _currentFrameIndex = 0;
+                _frameTimer -= anim.FrameDuration;
+                _currentFrame = (_currentFrame + 1) % anim.FrameCount;
             }
 
-            CurrentFrame = new Rectangle(_currentFrameIndex * _frameWidth, 0, _frameWidth, _frameHeight);
+            CurrentFrame = new Rectangle(_currentFrame * _frameWidth, 0, _frameWidth, _frameHeight);
+        }
+
+        private class AnimationData
+        {
+            public Texture2D Texture { get; set; }
+            public int FrameCount { get; set; }
+            public float FrameDuration { get; set; }
         }
     }
 }

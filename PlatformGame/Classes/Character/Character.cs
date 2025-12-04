@@ -22,100 +22,66 @@ namespace PlatformGame.Classes.Character
         private readonly float _moveSpeed;
 
         public Vector2 Position => _position;
-        public CharacterState CurrentState { get; private set; }
+        public CharacterState CurrentState { get; private set; } = CharacterState.Idle;
         public bool FacingLeft { get; private set; }
 
-        public Character(Vector2 startposition, IPhysicsComponent physics, IInputHandler input, ICollisionSystem collision, List<IMovementStrategy> strategies,
-            int frameWidth = 48, int frameHeigt = 48, float movespeed = 150f)
+        public Character(Vector2 startPosition, IPhysicsComponent physics, IInputHandler input,
+                        ICollisionSystem collision, List<IMovementStrategy> strategies,
+                        int frameWidth = 48, int frameHeight = 48, float moveSpeed = 150f)
         {
-            _position = startposition;
+            _position = startPosition;
             _physics = physics;
             _input = input;
             _collision = collision;
             _strategies = strategies;
             _frameWidth = frameWidth;
-            _frameHeight = frameHeigt;
-            _moveSpeed = movespeed;
-            CurrentState = CharacterState.Idle;
+            _frameHeight = frameHeight;
+            _moveSpeed = moveSpeed;
         }
 
         public void Update(float deltaTime)
         {
-            // Check ground
-            bool isGrounded = _collision.CheckGround(GetHitbox(), out float groundY);
+            bool wasGrounded = _collision.IsGrounded(GetHitbox(), out float groundY);
 
-            // Execute movement strategies
             foreach (var strategy in _strategies)
-            {
-                strategy.Execute(_physics, _input, isGrounded, _moveSpeed);
-            }
+                strategy.Execute(_physics, _input, wasGrounded, _moveSpeed);
 
-            // Apply physics
             _physics.ApplyGravity(deltaTime);
             _physics.ApplyVelocity(ref _position, deltaTime);
 
-            // Resolve collisions
-            ResolveCollisions(isGrounded, groundY);
+            bool isGroundedNow = _collision.IsGrounded(GetHitbox(), out float newGroundY);
 
-            // Update character state
-            UpdateState(isGrounded);
-            UpdateFacingDirection();
-
-        }
-
-        private void ResolveCollisions(bool isGrounded, float groundY)
-        {
-            Rectangle hitBox = GetHitbox();
-
-            // Ground collision
-            if (isGrounded && _physics.Velocity.Y >= 0)
+            if (isGroundedNow && _physics.Velocity.Y >= 0)
             {
-                _position.Y = groundY - _frameHeight;
+                _position.Y = newGroundY - _frameHeight;
                 _physics.Velocity = new Vector2(_physics.Velocity.X, 0);
             }
 
-            // Ceiling collision
-            if (_collision.CheckCeiling(hitBox, out float ceilingY) && _physics.Velocity.Y < 0)
-            {
-                _position.Y = ceilingY;
-                _physics.Velocity = new Vector2(_physics.Velocity.X, 0);
-            }
+            UpdateState(isGroundedNow);
+            UpdateFacing();
 
         }
 
         private void UpdateState(bool isGrounded)
         {
-            if (!isGrounded)
-            {
-                CurrentState = _physics.Velocity.Y < 0 ?
-                    CharacterState.Jumping : CharacterState.Falling;
-            }
-            else if (_physics.Velocity.X != 0)
-            {
-                CurrentState = CharacterState.Running;
-            }
-            else
-            {
-                CurrentState = CharacterState.Idle;
-            }
+            if (!isGrounded) return; // blijf in huidige state in lucht
+
+            CurrentState = Math.Abs(_physics.Velocity.X) > 0.1f
+                ? CharacterState.Running
+                : CharacterState.Idle;
         }
 
-        private void UpdateFacingDirection()
+        private void UpdateFacing()
         {
-            if (_physics.Velocity.X < 0)
-            {
+            const float threshold = 0.1f;
+
+            if (_physics.Velocity.X < -threshold)
                 FacingLeft = true;
-            }
-            else if (_physics.Velocity.X > 0)
-            {
+            else if (_physics.Velocity.X > threshold)
                 FacingLeft = false;
-            }
         }
 
-        public Rectangle GetHitbox()
-        {
-            return new Rectangle((int)_position.X, (int)_position.Y, _frameWidth, _frameHeight);
-        }
+        public Rectangle GetHitbox() => new((int)_position.X, (int)_position.Y, _frameWidth, _frameHeight);
     }
 
 }

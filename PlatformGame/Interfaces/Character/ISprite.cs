@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PlatformGame.Classes.Character;
 
 namespace PlatformGame.Interfaces.Character
 {
@@ -15,5 +16,6 @@ namespace PlatformGame.Interfaces.Character
         Rectangle CurrentFrame { get; }
         Texture2D CurrentTexture { get; }
         void Update(CharacterState state, float deltaTime);
+        void RegisterAnimation(CharacterState state, Texture2D texture, int frameCount, float frameDuration);
     }
 }

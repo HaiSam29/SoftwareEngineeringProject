@@ -12,7 +12,6 @@ namespace PlatformGame.Classes.Character
     public class PhysicsComponent : IPhysicsComponent
     {
         private readonly float _gravity;
-
         public Vector2 Velocity { get; set; }
 
         public PhysicsComponent(float gravity = 800f)
