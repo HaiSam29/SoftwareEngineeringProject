@@ -1,9 +1,9 @@
 ﻿using PlatformGame.Interfaces.Character;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,7 +29,7 @@ namespace PlatformGame.Classes.Character
 
             foreach (var collider in _colliders)
             {
-                if (hitbox.IntersectsWith(collider) && hitbox.Bottom >= collider.Top && hitbox.Bottom <= collider.Top + 20)
+                if (hitbox.Intersects(collider) && hitbox.Bottom >= collider.Top && hitbox.Bottom <= collider.Top + 20)
                 {
                     groundY = collider.Top;
                     return true;
@@ -45,7 +45,7 @@ namespace PlatformGame.Classes.Character
 
             foreach (var collider in _colliders)
             {
-                if (hitbox.IntersectsWith(collider) && hitbox.Top <= collider.Bottom)
+                if (hitbox.Intersects(collider) && hitbox.Top <= collider.Bottom)
                 {
                     ceilingY = collider.Bottom;
                     return true;
@@ -59,7 +59,7 @@ namespace PlatformGame.Classes.Character
         {
             foreach (var collider in _colliders)
             {
-                if (hitbox.IntersectsWith(collider))
+                if (hitbox.Intersects(collider))
                 {
                     if (velocity.X > 0 && hitbox.Right > collider.Left)
                     {
