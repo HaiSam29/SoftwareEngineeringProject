@@ -4,7 +4,6 @@ using PlatformGame.Interfaces.Character;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,7 +39,12 @@ namespace PlatformGame.Classes.Character
 
         public void Update(CharacterState state, float deltaTime)
         {
-            if (!_animations.TryGetValue(state, out var anim)) return;
+            if (!_animations.TryGetValue(state, out var anim))
+            {
+                // Fallback to Idle if requested state doesn't exist
+                if (!_animations.TryGetValue(CharacterState.Idle, out anim))
+                    return; // No animations registered
+            }
 
             if (state != _lastState)
             {

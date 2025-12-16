@@ -12,7 +12,7 @@ namespace PlatformGame.Classes.Character
     public class GroundedMovementStrategy: IMovementStrategy
     {
         public void Execute(IPhysicsComponent physics, IInputHandler input,
-                       bool isGrounded, float moveSpeed)
+                           bool isGrounded, float moveSpeed)
         {
             if (!isGrounded)
                 return;

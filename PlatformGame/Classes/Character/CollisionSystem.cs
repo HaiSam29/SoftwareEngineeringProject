@@ -11,6 +11,7 @@ namespace PlatformGame.Classes.Character
 {
     public class CollisionSystem : ICollisionSystem
     {
+        private const float GROUND_DETECTION_THRESHOLD = 5f;
         private readonly List<Rectangle> _colliders = new();
 
         public void AddCollider(Rectangle collider) => _colliders.Add(collider);
@@ -20,9 +21,8 @@ namespace PlatformGame.Classes.Character
             groundY = 0;
             foreach (var collider in _colliders)
             {
-                // simpele check: onderkant van hitbox raakt/overlapt bovenkant van collider
                 if (hitbox.Bottom >= collider.Top &&
-                    hitbox.Bottom <= collider.Top + 5 &&    // kleine marge
+                    hitbox.Bottom <= collider.Top + GROUND_DETECTION_THRESHOLD &&
                     hitbox.Right > collider.Left &&
                     hitbox.Left < collider.Right)
                 {
