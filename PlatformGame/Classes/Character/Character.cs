@@ -19,6 +19,11 @@ namespace PlatformGame.Classes.Character
         private readonly int _frameWidth;
         private readonly int _frameHeight;
         private readonly float _moveSpeed;
+        private const float movementThreshold = 0.1f;
+        private const float facingThreshold = 0.1f;
+        private const float landingDuration = 0.2f;
+        private float _landingTimer;
+        private bool _wasInAir;
 
         public Vector2 Position => _position;
         public CharacterState CurrentState { get; private set; } = CharacterState.Idle;
@@ -54,6 +59,20 @@ namespace PlatformGame.Classes.Character
             {
                 _position.Y = newGroundY - _frameHeight;
                 _physics.Velocity = new Vector2(_physics.Velocity.X, 0);
+
+                // Trigger landing state als we net geland zijn
+                if (_wasInAir)
+                {
+                    _landingTimer = landingDuration;
+                }
+            }
+
+            _wasInAir = !isGroundedNow;
+
+            // Update landing timer
+            if (_landingTimer > 0)
+            {
+                _landingTimer -= deltaTime;
             }
 
             UpdateState(isGroundedNow);
@@ -63,9 +82,22 @@ namespace PlatformGame.Classes.Character
 
         private void UpdateState(bool isGrounded)
         {
-            if (!isGrounded) return; // blijf in huidige state in lucht
+            // In de lucht = Jumping
+            if (!isGrounded)
+            {
+                CurrentState = CharacterState.Jumping;
+                return;
+            }
 
-            CurrentState = Math.Abs(_physics.Velocity.X) > 0.1f
+            // Net geland = Landing (totdat timer afloopt)
+            if (_landingTimer > 0)
+            {
+                CurrentState = CharacterState.Landing;
+                return;
+            }
+
+            // Op de grond: Idle of Running
+            CurrentState = Math.Abs(_physics.Velocity.X) > movementThreshold
                 ? CharacterState.Running
                 : CharacterState.Idle;
         }

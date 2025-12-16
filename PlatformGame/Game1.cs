@@ -14,6 +14,7 @@ namespace PlatformGame
         private SpriteBatch _spriteBatch;
         private ICharacter _character;
         private ISprite _sprite;
+        private const int characterFrameSize = 48;
 
         public Game1()
         {
@@ -35,11 +36,13 @@ namespace PlatformGame
 
             var idleTexture = Content.Load<Texture2D>("idle");
             var runningTexture = Content.Load<Texture2D>("Running");
+            var jumpingTexture = Content.Load<Texture2D>("Jumping");
+            var landingTexture = Content.Load<Texture2D>("Landing");
 
             var collision = new CollisionSystem();
             collision.AddCollider(new Rectangle(0, 450, 800, 50));
 
-            var strategies = new List<IMovementStrategy> { new GroundedMovementStrategy() };
+            var strategies = new List<IMovementStrategy> { new GroundedMovementStrategy(), new JumpStrategy(300f) };
 
             _character = new Character(
                 new Vector2(100, 450 - 48),
@@ -53,6 +56,8 @@ namespace PlatformGame
             _sprite = new Sprite(48, 48);
             _sprite.RegisterAnimation(CharacterState.Idle, idleTexture, 4, 0.2f);
             _sprite.RegisterAnimation(CharacterState.Running, runningTexture, 6, 0.12f);
+            _sprite.RegisterAnimation(CharacterState.Jumping, jumpingTexture, 1, 0.1f, 64);
+            _sprite.RegisterAnimation(CharacterState.Landing, landingTexture, 1, 0.1f, 64);
         }
 
         protected override void Update(GameTime gameTime)
@@ -69,14 +74,33 @@ namespace PlatformGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+
             _spriteBatch.Begin();
 
-            _spriteBatch.Draw(_sprite.CurrentTexture, _character.Position,
-                _sprite.CurrentFrame, Color.White, 0f, Vector2.Zero, 1f,
-                _character.FacingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+            Vector2 drawPosition = _character.Position;
+
+            if (_sprite.CurrentFrame.Height > characterFrameSize)
+            {
+                drawPosition.Y -= (_sprite.CurrentFrame.Height - characterFrameSize);
+            }
+
+            _spriteBatch.Draw(
+                _sprite.CurrentTexture,
+                drawPosition,
+                _sprite.CurrentFrame,
+                Color.White,
+                0f,
+                Vector2.Zero,
+                1f,
+                _character.FacingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                0f
+            );
 
             _spriteBatch.End();
+
             base.Draw(gameTime);
         }
+
+
     }
 }

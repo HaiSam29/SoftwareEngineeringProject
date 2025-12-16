@@ -27,13 +27,14 @@ namespace PlatformGame.Classes.Character
             _frameHeight = frameHeight;
         }
 
-        public void RegisterAnimation(CharacterState state, Texture2D texture, int frameCount, float frameDuration)
+        public void RegisterAnimation(CharacterState state, Texture2D texture, int frameCount, float frameDuration, int? customFrameHeight = null)
         {
             _animations[state] = new AnimationData
             {
                 Texture = texture,
                 FrameCount = frameCount,
-                FrameDuration = frameDuration
+                FrameDuration = frameDuration,
+                FrameHeight = customFrameHeight ?? _frameHeight
             };
         }
 
@@ -41,9 +42,8 @@ namespace PlatformGame.Classes.Character
         {
             if (!_animations.TryGetValue(state, out var anim))
             {
-                // Fallback to Idle if requested state doesn't exist
                 if (!_animations.TryGetValue(CharacterState.Idle, out anim))
-                    return; // No animations registered
+                    return;
             }
 
             if (state != _lastState)
@@ -62,7 +62,8 @@ namespace PlatformGame.Classes.Character
                 _currentFrame = (_currentFrame + 1) % anim.FrameCount;
             }
 
-            CurrentFrame = new Rectangle(_currentFrame * _frameWidth, 0, _frameWidth, _frameHeight);
+            // Gebruik custom height per animatie
+            CurrentFrame = new Rectangle(_currentFrame * _frameWidth, 0, _frameWidth, anim.FrameHeight);
         }
 
         private class AnimationData
@@ -70,6 +71,7 @@ namespace PlatformGame.Classes.Character
             public Texture2D Texture { get; set; }
             public int FrameCount { get; set; }
             public float FrameDuration { get; set; }
+            public int FrameHeight { get; set; }
         }
     }
 }
