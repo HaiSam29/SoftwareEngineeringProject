@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using PlatformGame.Classes.Character;
+using PlatformGame.Classes.Game;
 using PlatformGame.Enums;
 using PlatformGame.Interfaces.Character;
 using System.Collections.Generic;
@@ -22,9 +23,10 @@ namespace PlatformGame
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            _graphics.PreferredBackBufferWidth = 1920;
-            _graphics.PreferredBackBufferHeight = 1080;
+            _graphics.PreferredBackBufferWidth = GameConfig.screenWidth;
+            _graphics.PreferredBackBufferHeight = GameConfig.screenHeight;
             _graphics.ApplyChanges();
+
         }
 
         protected override void Initialize()
@@ -45,20 +47,20 @@ namespace PlatformGame
             var attackingTexture = Content.Load<Texture2D>("Attacking");
 
             var collision = new CollisionSystem();
-            collision.AddCollider(new Rectangle(0, 450, 800, 50));
+            collision.AddCollider(new Rectangle(0, GameConfig.groundY, GameConfig.screenWidth, GameConfig.screenHeight));
 
-            var strategies = new List<IMovementStrategy> { new GroundedMovementStrategy(), new JumpStrategy(300f) };
+            var strategies = new List<IMovementStrategy> { new GroundedMovementStrategy(), new JumpStrategy(GameConfig.jumpForce) };
 
             _character = new Character(
-                new Vector2(100, 450 - 48),
-                new PhysicsComponent(800f),
+                new Vector2(100, GameConfig.groundY - GameConfig.characterFrameSize),
+                new PhysicsComponent(GameConfig.gravity),
                 new KeyboardInputHandler(),
                 collision,
                 strategies,
-                48, 48, 150f
+                GameConfig.characterFrameSize, GameConfig.characterFrameSize, GameConfig.characterMoveSpeed
             );
 
-            _sprite = new Sprite(48, 48);
+            _sprite = new Sprite(GameConfig.characterFrameSize, GameConfig.characterFrameSize);
             _sprite.RegisterAnimation(CharacterState.Idle, idleTexture, 4, 0.2f);
             _sprite.RegisterAnimation(CharacterState.Running, runningTexture, 6, 0.12f);
             _sprite.RegisterAnimation(CharacterState.Jumping, jumpingTexture, 1, 0.1f, 64);
@@ -89,19 +91,10 @@ namespace PlatformGame
 
             _spriteBatch.Begin();
 
-            Vector2 drawPosition = _character.Position;
-
-            // Offset voor hogere sprites (voeten op grond)
-            if (_sprite.CurrentFrame.Height > characterFrameSize)
-            {
-                drawPosition.Y -= (_sprite.CurrentFrame.Height - characterFrameSize);
-            }
-
-            // Offset voor bredere sprites (center character)
-            if (_sprite.CurrentFrame.Width > characterFrameSize)
-            {
-                drawPosition.X -= (_sprite.CurrentFrame.Width - characterFrameSize) / 2f;
-            }
+            Vector2 drawPosition = _character.Position + _sprite.CalculateDrawOffset(
+                GameConfig.characterFrameSize,
+                GameConfig.characterScale
+            );
 
             _spriteBatch.Draw(
                 _sprite.CurrentTexture,
@@ -110,7 +103,7 @@ namespace PlatformGame
                 Color.White,
                 0f,
                 Vector2.Zero,
-                1f,
+                GameConfig.characterScale,
                 _character.FacingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                 0f
             );

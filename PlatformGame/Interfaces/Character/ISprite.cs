@@ -17,5 +17,6 @@ namespace PlatformGame.Interfaces.Character
         Texture2D CurrentTexture { get; }
         void Update(CharacterState state, float deltaTime);
         void RegisterAnimation(CharacterState state, Texture2D texture, int frameCount, float frameDuration, int? customFrameHeight = null, int? customFrameWidth = null);
+        Vector2 CalculateDrawOffset(int baseFrameSize, float scale);
     }
 }

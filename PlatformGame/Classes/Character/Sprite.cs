@@ -67,6 +67,26 @@ namespace PlatformGame.Classes.Character
             CurrentFrame = new Rectangle(_currentFrame * anim.FrameWidth, 0, anim.FrameWidth, anim.FrameHeight);
         }
 
+        public Vector2 CalculateDrawOffset(int baseFrameSize, float scale)
+        {
+            Vector2 offset = Vector2.Zero;
+
+            // Offset voor hogere sprites (voeten op grond)
+            if (CurrentFrame.Height > baseFrameSize)
+            {
+                offset.Y -= (CurrentFrame.Height - baseFrameSize) * scale;
+            }
+
+            // Offset voor bredere sprites (center character)
+            if (CurrentFrame.Width > baseFrameSize)
+            {
+                offset.X -= (CurrentFrame.Width - baseFrameSize) * scale / 2f;
+            }
+
+            return offset;
+        }
+
+
         private class AnimationData
         {
             public Texture2D Texture { get; set; }
