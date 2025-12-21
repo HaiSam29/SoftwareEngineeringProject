@@ -24,6 +24,8 @@ namespace PlatformGame.Classes.Character
         private const float landingDuration = 0.2f;
         private float _landingTimer;
         private bool _wasInAir;
+        private const float attackDuration = 0.4f;
+        private float _attackTimer;
 
         public Vector2 Position => _position;
         public CharacterState CurrentState { get; private set; } = CharacterState.Idle;
@@ -47,8 +49,23 @@ namespace PlatformGame.Classes.Character
         {
             bool wasGrounded = _collision.IsGrounded(GetHitbox(), out float groundY);
 
-            foreach (var strategy in _strategies)
-                strategy.Execute(_physics, _input, wasGrounded, _moveSpeed);
+            // Check attack input (alleen als niet al aan het attacken)
+            if (_input.IsAttackPressed() && _attackTimer <= 0 && wasGrounded)
+            {
+                _attackTimer = attackDuration;
+            }
+
+            // Alleen movement als niet aan het attacken
+            if (_attackTimer <= 0)
+            {
+                foreach (var strategy in _strategies)
+                    strategy.Execute(_physics, _input, wasGrounded, _moveSpeed);
+            }
+            else
+            {
+                // Stop beweging tijdens attack
+                _physics.Velocity = new Vector2(0, _physics.Velocity.Y);
+            }
 
             _physics.ApplyGravity(deltaTime);
             _physics.ApplyVelocity(ref _position, deltaTime);
@@ -60,7 +77,6 @@ namespace PlatformGame.Classes.Character
                 _position.Y = newGroundY - _frameHeight;
                 _physics.Velocity = new Vector2(_physics.Velocity.X, 0);
 
-                // Trigger landing state als we net geland zijn
                 if (_wasInAir)
                 {
                     _landingTimer = landingDuration;
@@ -69,11 +85,12 @@ namespace PlatformGame.Classes.Character
 
             _wasInAir = !isGroundedNow;
 
-            // Update landing timer
+            // Update timers
             if (_landingTimer > 0)
-            {
                 _landingTimer -= deltaTime;
-            }
+
+            if (_attackTimer > 0)
+                _attackTimer -= deltaTime;
 
             UpdateState(isGroundedNow);
             UpdateFacing();
@@ -82,6 +99,13 @@ namespace PlatformGame.Classes.Character
 
         private void UpdateState(bool isGrounded)
         {
+            // Attack heeft hoogste prioriteit
+            if (_attackTimer > 0)
+            {
+                CurrentState = CharacterState.Attacking;
+                return;
+            }
+
             // In de lucht = Jumping
             if (!isGrounded)
             {
@@ -89,7 +113,7 @@ namespace PlatformGame.Classes.Character
                 return;
             }
 
-            // Net geland = Landing (totdat timer afloopt)
+            // Net geland = Landing
             if (_landingTimer > 0)
             {
                 CurrentState = CharacterState.Landing;

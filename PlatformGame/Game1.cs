@@ -21,6 +21,10 @@ namespace PlatformGame
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
+            _graphics.PreferredBackBufferWidth = 1920;
+            _graphics.PreferredBackBufferHeight = 1080;
+            _graphics.ApplyChanges();
         }
 
         protected override void Initialize()
@@ -38,6 +42,7 @@ namespace PlatformGame
             var runningTexture = Content.Load<Texture2D>("Running");
             var jumpingTexture = Content.Load<Texture2D>("Jumping");
             var landingTexture = Content.Load<Texture2D>("Landing");
+            var attackingTexture = Content.Load<Texture2D>("Attacking");
 
             var collision = new CollisionSystem();
             collision.AddCollider(new Rectangle(0, 450, 800, 50));
@@ -58,11 +63,18 @@ namespace PlatformGame
             _sprite.RegisterAnimation(CharacterState.Running, runningTexture, 6, 0.12f);
             _sprite.RegisterAnimation(CharacterState.Jumping, jumpingTexture, 1, 0.1f, 64);
             _sprite.RegisterAnimation(CharacterState.Landing, landingTexture, 1, 0.1f, 64);
+            _sprite.RegisterAnimation(CharacterState.Attacking, attackingTexture, 8, 0.5f, null, 80);
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
+
+            if (Keyboard.GetState().IsKeyDown(Keys.F11))
+            {
+                _graphics.IsFullScreen = !_graphics.IsFullScreen;
+                _graphics.ApplyChanges();
+            }
 
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             _character.Update(deltaTime);
@@ -79,9 +91,16 @@ namespace PlatformGame
 
             Vector2 drawPosition = _character.Position;
 
+            // Offset voor hogere sprites (voeten op grond)
             if (_sprite.CurrentFrame.Height > characterFrameSize)
             {
                 drawPosition.Y -= (_sprite.CurrentFrame.Height - characterFrameSize);
+            }
+
+            // Offset voor bredere sprites (center character)
+            if (_sprite.CurrentFrame.Width > characterFrameSize)
+            {
+                drawPosition.X -= (_sprite.CurrentFrame.Width - characterFrameSize) / 2f;
             }
 
             _spriteBatch.Draw(

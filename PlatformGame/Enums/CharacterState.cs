@@ -11,6 +11,7 @@ namespace PlatformGame.Enums
         Idle,
         Running,
         Jumping,
-        Landing
+        Landing,
+        Attacking
     }
 }

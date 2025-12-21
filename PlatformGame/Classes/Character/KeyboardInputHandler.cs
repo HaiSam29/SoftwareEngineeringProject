@@ -12,6 +12,7 @@ namespace PlatformGame.Classes.Character
 {
     public class KeyboardInputHandler : IInputHandler
     {
+        private bool _wasAttackPressed;
         public float GetMoveDirectionX()
         {
             var keys = Keyboard.GetState();
@@ -23,6 +24,24 @@ namespace PlatformGame.Classes.Character
                 x = 1;
 
             return x;
+        }
+
+        public bool IsAttackPressed()
+        {
+            var keys = Keyboard.GetState();
+            bool isPressed = keys.IsKeyDown(Keys.X);
+
+            // Return true alleen bij eerste frame van druk
+            if (isPressed && !_wasAttackPressed)
+            {
+                _wasAttackPressed = true;
+                return true;
+            }
+
+            if (!isPressed)
+                _wasAttackPressed = false;
+
+            return false;
         }
     }
 }
