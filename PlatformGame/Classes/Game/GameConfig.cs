@@ -13,7 +13,7 @@ namespace PlatformGame.Classes.Game
         public const int screenHeight = 1080;
 
         // World
-        public const int groundY = 950;
+        public const int groundY = 785;
         public const int groundHeight = 130;
 
         // Character

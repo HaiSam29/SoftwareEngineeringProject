@@ -41,6 +41,7 @@ namespace PlatformGame.Classes.Map
                 
                 TileType.GrassBlock => (0, 0),
                 TileType.Dirt => (0, 4),
+                TileType.Stone => (2,7),
                 _ => (0, 0)
             };
         }

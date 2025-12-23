@@ -23,6 +23,7 @@ namespace PlatformGame
         private TileMap _tileMap;
         private ILevelLoader _levelLoader;
         private Level _currentLevel;
+        private Background _background;
 
         public Game1()
         {
@@ -47,6 +48,15 @@ namespace PlatformGame
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            // Load background
+            
+            var backgroundTexture = Content.Load<Texture2D>("background");
+            _background = new Background(
+                backgroundTexture,
+                GameConfig.screenWidth,
+                GameConfig.screenHeight
+            );
 
             var idleTexture = Content.Load<Texture2D>("idle");
             var runningTexture = Content.Load<Texture2D>("Running");
@@ -113,7 +123,9 @@ namespace PlatformGame
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-    
+
+            _background.Draw(_spriteBatch);
+
             _tileMap.Draw(_spriteBatch, Vector2.Zero);
 
             Vector2 drawPosition = _character.Position + _sprite.CalculateDrawOffset(

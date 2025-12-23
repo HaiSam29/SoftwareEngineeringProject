@@ -21,7 +21,6 @@ namespace PlatformGame.Classes.Level
 
         private Level CreateLevel1()
         {
-            // KOPIEER HIER JE MAPDATA UIT GAME1
             var mapData = new TileType[,]
             {
                 // Rij 0-4: Lucht
@@ -36,13 +35,13 @@ namespace PlatformGame.Classes.Level
                 { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
                 
                 // Rij 7: Hoge platforms
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.GrassBlock, TileType.GrassBlock, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.GrassBlock, TileType.GrassBlock, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
+                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Stone, TileType.Stone, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Stone, TileType.Stone, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
                 
                 // Rij 8: Mid platforms
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.Empty, TileType.Empty, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
+                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Stone, TileType.Stone, TileType.Stone, TileType.Empty, TileType.Empty, TileType.Stone, TileType.Stone, TileType.Stone, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
                 
                 // Rij 9: Lage platforms
-                { TileType.Empty, TileType.Empty, TileType.GrassBlock, TileType.GrassBlock, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.GrassBlock, TileType.GrassBlock, TileType.Empty, TileType.Empty },
+                { TileType.Empty, TileType.Empty, TileType.Stone, TileType.Stone, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Stone, TileType.Stone, TileType.Empty, TileType.Empty },
                 
                 // Rij 10: Lucht
                 { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
@@ -53,7 +52,6 @@ namespace PlatformGame.Classes.Level
                 { TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt }
             };
 
-            // KOPIEER HIER JE COLLISION
             var collision = new bool[,]
             {
                 { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },

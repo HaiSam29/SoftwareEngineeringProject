@@ -10,6 +10,7 @@ namespace PlatformGame.Enums
     {
         Empty,
         GrassBlock,
-        Dirt
+        Dirt,
+        Stone
     }
 }
