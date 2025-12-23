@@ -3,8 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using PlatformGame.Classes.Character;
 using PlatformGame.Classes.Game;
+using PlatformGame.Classes.Level;
+using PlatformGame.Classes.Map;
 using PlatformGame.Enums;
 using PlatformGame.Interfaces.Character;
+using PlatformGame.Interfaces.Ilevel;
 using System.Collections.Generic;
 
 namespace PlatformGame
@@ -16,6 +19,10 @@ namespace PlatformGame
         private ICharacter _character;
         private ISprite _sprite;
         private const int characterFrameSize = 48;
+        private Texture2D _tileset;
+        private TileMap _tileMap;
+        private ILevelLoader _levelLoader;
+        private Level _currentLevel;
 
         public Game1()
         {
@@ -27,6 +34,7 @@ namespace PlatformGame
             _graphics.PreferredBackBufferHeight = GameConfig.screenHeight;
             _graphics.ApplyChanges();
 
+            _levelLoader = new HardcodedLevelLoader();
         }
 
         protected override void Initialize()
@@ -66,6 +74,21 @@ namespace PlatformGame
             _sprite.RegisterAnimation(CharacterState.Jumping, jumpingTexture, 1, 0.1f, 64);
             _sprite.RegisterAnimation(CharacterState.Landing, landingTexture, 1, 0.1f, 64);
             _sprite.RegisterAnimation(CharacterState.Attacking, attackingTexture, 8, 0.5f, null, 80);
+
+            // Load tilemap
+            _tileset = Content.Load<Texture2D>("tilemap");
+            var factory = new TileFactory(18, 1);
+
+            // Load level via interface 
+            _currentLevel = _levelLoader.LoadLevel("Level1");
+
+            // Create tilemap with level data
+            _tileMap = new TileMap(
+                _currentLevel.MapData,
+                _tileset,
+                80,
+                factory,
+                _currentLevel.Collision);
         }
 
         protected override void Update(GameTime gameTime)
@@ -89,7 +112,9 @@ namespace PlatformGame
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+    
+            _tileMap.Draw(_spriteBatch, Vector2.Zero);
 
             Vector2 drawPosition = _character.Position + _sprite.CalculateDrawOffset(
                 GameConfig.characterFrameSize,
