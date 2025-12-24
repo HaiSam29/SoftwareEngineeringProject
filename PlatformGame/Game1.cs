@@ -50,12 +50,12 @@ namespace PlatformGame
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Load background
-            
+
             var backgroundTexture = Content.Load<Texture2D>("background");
             _background = new Background(
-                backgroundTexture,
-                GameConfig.screenWidth,
-                GameConfig.screenHeight
+            backgroundTexture,
+            GameConfig.screenWidth,
+            GameConfig.screenHeight
             );
 
             var idleTexture = Content.Load<Texture2D>("idle");
@@ -70,12 +70,12 @@ namespace PlatformGame
             var strategies = new List<IMovementStrategy> { new GroundedMovementStrategy(), new JumpStrategy(GameConfig.jumpForce) };
 
             _character = new Character(
-                new Vector2(100, GameConfig.groundY - GameConfig.characterFrameSize),
-                new PhysicsComponent(GameConfig.gravity),
-                new KeyboardInputHandler(),
-                collision,
-                strategies,
-                GameConfig.characterFrameSize, GameConfig.characterFrameSize, GameConfig.characterMoveSpeed
+            new Vector2(100, GameConfig.groundY - GameConfig.characterFrameSize),
+            new PhysicsComponent(GameConfig.gravity),
+            new KeyboardInputHandler(),
+            collision,
+            strategies,
+            GameConfig.characterFrameSize, GameConfig.characterFrameSize, GameConfig.characterMoveSpeed
             );
 
             _sprite = new Sprite(GameConfig.characterFrameSize, GameConfig.characterFrameSize);
@@ -89,16 +89,16 @@ namespace PlatformGame
             _tileset = Content.Load<Texture2D>("tilemap");
             var factory = new TileFactory(18, 1);
 
-            // Load level via interface 
+            // Load level via interface
             _currentLevel = _levelLoader.LoadLevel("Level1");
 
             // Create tilemap with level data
             _tileMap = new TileMap(
-                _currentLevel.MapData,
-                _tileset,
-                80,
-                factory,
-                _currentLevel.Collision);
+            _currentLevel.MapData,
+            _tileset,
+            80,
+            factory,
+            _currentLevel.Collision);
         }
 
         protected override void Update(GameTime gameTime)

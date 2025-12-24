@@ -95,6 +95,7 @@ namespace PlatformGame.Classes.Character
             UpdateState(isGroundedNow);
             UpdateFacing();
 
+
         }
 
         private void UpdateState(bool isGrounded)

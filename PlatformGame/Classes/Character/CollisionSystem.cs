@@ -22,9 +22,9 @@ namespace PlatformGame.Classes.Character
             foreach (var collider in _colliders)
             {
                 if (hitbox.Bottom >= collider.Top &&
-                    hitbox.Bottom <= collider.Top + GROUND_DETECTION_THRESHOLD &&
-                    hitbox.Right > collider.Left &&
-                    hitbox.Left < collider.Right)
+                hitbox.Bottom <= collider.Top + GROUND_DETECTION_THRESHOLD &&
+                hitbox.Right > collider.Left &&
+                hitbox.Left < collider.Right)
                 {
                     groundY = collider.Top;
                     return true;
@@ -32,5 +32,6 @@ namespace PlatformGame.Classes.Character
             }
             return false;
         }
+
     }
 }
