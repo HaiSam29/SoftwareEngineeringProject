@@ -23,6 +23,6 @@ namespace PlatformGame.Classes.Game
 
         // Physics
         public const float gravity = 800f;
-        public const float jumpForce = 400f;
+        public const float jumpForce = 500f;
     }
 }

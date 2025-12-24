@@ -14,9 +14,7 @@ namespace PlatformGame.Classes.Character
         public void Execute(IPhysicsComponent physics, IInputHandler input,
                            bool isGrounded, float moveSpeed)
         {
-            if (!isGrounded)
-                return;
-
+            
             float dirX = input.GetMoveDirectionX();
             physics.Velocity = new Vector2(dirX * moveSpeed, physics.Velocity.Y);
         }
