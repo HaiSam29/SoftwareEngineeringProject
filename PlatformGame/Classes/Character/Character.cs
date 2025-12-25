@@ -26,13 +26,14 @@ namespace PlatformGame.Classes.Character
         private bool _wasInAir;
         private const float attackDuration = 0.4f;
         private float _attackTimer;
+        private readonly Rectangle _screenBounds;
 
         public Vector2 Position => _position;
         public CharacterState CurrentState { get; private set; } = CharacterState.Idle;
         public bool FacingLeft { get; private set; }
 
         public Character(Vector2 startPosition, IPhysicsComponent physics, IInputHandler input,
-                ICollisionSystem collision, List<IMovementStrategy> strategies,
+                ICollisionSystem collision, List<IMovementStrategy> strategies, Rectangle screenBounds,
                 int frameWidth = 48, int frameHeight = 48, float moveSpeed = 150f)
         {
             _position = startPosition;
@@ -43,6 +44,7 @@ namespace PlatformGame.Classes.Character
             _frameWidth = frameWidth;   
             _frameHeight = frameHeight; 
             _moveSpeed = moveSpeed;
+            _screenBounds = screenBounds;
         }
 
         public void Update(float deltaTime)
@@ -71,6 +73,8 @@ namespace PlatformGame.Classes.Character
             _physics.Velocity = _collision.ResolveCollision(GetHitbox(), _physics.Velocity, deltaTime);
 
             _physics.ApplyVelocity(ref _position, deltaTime);
+
+            ClampToScreenBounds();
 
             // Check ground AFTER movement
             bool isGroundedNow = _collision.IsGrounded(GetHitbox(), out float newGroundY);
@@ -103,6 +107,23 @@ namespace PlatformGame.Classes.Character
 
             UpdateState(isGroundedNow);
             UpdateFacing();
+        }
+
+        private void ClampToScreenBounds()
+        {
+            // Clamp X (links en rechts)
+            _position.X = MathHelper.Clamp(
+                _position.X,
+                _screenBounds.Left,                      // Linker rand
+                _screenBounds.Right - _frameWidth        // Rechter rand minus character breedte
+            );
+
+            // Optioneel: Clamp Y (boven en onder)
+            // _position.Y = MathHelper.Clamp(
+            //     _position.Y,
+            //     _screenBounds.Top,
+            //     _screenBounds.Bottom - _frameHeight
+            // );
         }
 
         private void UpdateState(bool isGrounded)

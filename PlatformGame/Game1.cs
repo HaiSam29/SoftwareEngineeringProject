@@ -68,22 +68,29 @@ namespace PlatformGame
 
             // Create movement strategies
             var strategies = new List<IMovementStrategy>
-    {
-        new GroundedMovementStrategy(),
-        new JumpStrategy(GameConfig.jumpForce)
-    };
+            {
+                new GroundedMovementStrategy(),
+                new JumpStrategy(GameConfig.jumpForce)
+            };
 
             // Calculate scaled character dimensions
-            int scaledCharacterSize = (int)(GameConfig.characterFrameSize * GameConfig.characterScale); // 48 * 3 = 144
+            int scaledCharacterSize = (int)(GameConfig.characterFrameSize * GameConfig.characterScale); // 48 * scale
 
             // Calculate character start position
-            int startTileX = 2;      // Kolom 2
-            int groundTileY = 11;    // Rij 11 (GrassBlock)
-            int tileSize = 80;
+            int startTileX = 0;      // Kolom 2
+            int groundTileY = 15;    // Rij 11 (GrassBlock)
+            int tileSize = 60;
 
             Vector2 startPosition = new Vector2(
-                startTileX * tileSize,                          // X: 2 * 80 = 160 pixels
-                (groundTileY * tileSize) - scaledCharacterSize  // Y: (11 * 80) - 144 = 736 pixels
+                startTileX * tileSize,                          // X: 2 * tilesize = hoeveelheid pixels
+                (groundTileY * tileSize) - scaledCharacterSize  // Y: (11 * tilesize) - calculated scale = hoeveelheid pixels
+            );
+
+            Rectangle screenBounds = new Rectangle(
+                0,                          // Left edge
+                0,                          // Top edge
+                GameConfig.screenWidth,     // Right edge (1920)
+                GameConfig.screenHeight     // Bottom edge (1080)
             );
 
             // Create character - HITBOX is 144x144 (scaled)
@@ -93,6 +100,7 @@ namespace PlatformGame
                 new KeyboardInputHandler(),
                 collision,
                 strategies,
+                screenBounds,
                 scaledCharacterSize,  // frameWidth = 144 (dit is je HITBOX)
                 scaledCharacterSize,  // frameHeight = 144 (dit is je HITBOX)
                 GameConfig.characterMoveSpeed
@@ -115,7 +123,7 @@ namespace PlatformGame
             var tileMap = new TileMap(
                 _currentLevel.MapData,
                 _tileset,
-                tileSize,  // 80 pixels per tile
+                tileSize,  // pixels per tile
                 factory
             );
 
