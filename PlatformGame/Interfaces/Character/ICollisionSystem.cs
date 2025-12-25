@@ -12,5 +12,6 @@ namespace PlatformGame.Interfaces.Character
     {
         void AddCollider(Rectangle collider);
         bool IsGrounded(Rectangle hitbox, out float groundY);
+        Vector2 ResolveCollision(Rectangle hitbox, Vector2 velocity, float deltaTime);
     }
 }

@@ -48,6 +48,7 @@ namespace PlatformGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            // Load background
             var backgroundTexture = Content.Load<Texture2D>("background");
             _background = new Background(
                 backgroundTexture,
@@ -55,32 +56,49 @@ namespace PlatformGame
                 GameConfig.screenHeight
             );
 
+            // Load character textures
             var idleTexture = Content.Load<Texture2D>("idle");
             var runningTexture = Content.Load<Texture2D>("Running");
             var jumpingTexture = Content.Load<Texture2D>("Jumping");
             var landingTexture = Content.Load<Texture2D>("Landing");
             var attackingTexture = Content.Load<Texture2D>("Attacking");
 
+            // Create collision system
             var collision = new CollisionSystem();
-            collision.AddCollider(new Rectangle(0, GameConfig.groundY, GameConfig.screenWidth, GameConfig.screenHeight));
 
+            // Create movement strategies
             var strategies = new List<IMovementStrategy>
-            {
-                new GroundedMovementStrategy(),
-                new JumpStrategy(GameConfig.jumpForce)
-            };
+    {
+        new GroundedMovementStrategy(),
+        new JumpStrategy(GameConfig.jumpForce)
+    };
 
+            // Calculate scaled character dimensions
+            int scaledCharacterSize = (int)(GameConfig.characterFrameSize * GameConfig.characterScale); // 48 * 3 = 144
+
+            // Calculate character start position
+            int startTileX = 2;      // Kolom 2
+            int groundTileY = 11;    // Rij 11 (GrassBlock)
+            int tileSize = 80;
+
+            Vector2 startPosition = new Vector2(
+                startTileX * tileSize,                          // X: 2 * 80 = 160 pixels
+                (groundTileY * tileSize) - scaledCharacterSize  // Y: (11 * 80) - 144 = 736 pixels
+            );
+
+            // Create character - HITBOX is 144x144 (scaled)
             _character = new Character(
-                new Vector2(100, GameConfig.groundY - GameConfig.characterFrameSize),
+                startPosition,
                 new PhysicsComponent(GameConfig.gravity),
                 new KeyboardInputHandler(),
                 collision,
                 strategies,
-                GameConfig.characterFrameSize,
-                GameConfig.characterFrameSize,
+                scaledCharacterSize,  // frameWidth = 144 (dit is je HITBOX)
+                scaledCharacterSize,  // frameHeight = 144 (dit is je HITBOX)
                 GameConfig.characterMoveSpeed
             );
 
+            // Register sprite animations - SPRITE is 48x48 (unscaled)
             _sprite = new Sprite(GameConfig.characterFrameSize, GameConfig.characterFrameSize);
             _sprite.RegisterAnimation(CharacterState.Idle, idleTexture, 4, 0.2f);
             _sprite.RegisterAnimation(CharacterState.Running, runningTexture, 6, 0.12f);
@@ -90,23 +108,22 @@ namespace PlatformGame
 
             // Load tilemap
             _tileset = Content.Load<Texture2D>("tilemap");
-
-            // Dependency Inversion: ITileFactory interface
             ITileFactory factory = new TileFactory(18, 1);
-
-            // Load level via interface
             _currentLevel = _levelLoader.LoadLevel("Level1");
 
-            // Create tilemap - één object implementeert beide interfaces (Interface Segregation)
+            // Create tilemap
             var tileMap = new TileMap(
                 _currentLevel.MapData,
                 _tileset,
-                80,
+                tileSize,  // 80 pixels per tile
                 factory
             );
 
             _tileMapRenderer = tileMap;
             _tileCollisionProvider = tileMap;
+
+            // Link tile collision to character collision system
+            collision.SetTileCollisionProvider(_tileCollisionProvider, tileSize);
         }
 
         protected override void Update(GameTime gameTime)

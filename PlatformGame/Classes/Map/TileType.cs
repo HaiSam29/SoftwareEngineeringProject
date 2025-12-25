@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlatformGame.Enums
+namespace PlatformGame.Classes.Map
 {
     public static class TileType
     {

@@ -32,16 +32,16 @@ namespace PlatformGame.Classes.Character
         public bool FacingLeft { get; private set; }
 
         public Character(Vector2 startPosition, IPhysicsComponent physics, IInputHandler input,
-                        ICollisionSystem collision, List<IMovementStrategy> strategies,
-                        int frameWidth = 48, int frameHeight = 48, float moveSpeed = 150f)
+                ICollisionSystem collision, List<IMovementStrategy> strategies,
+                int frameWidth = 48, int frameHeight = 48, float moveSpeed = 150f)
         {
             _position = startPosition;
             _physics = physics;
             _input = input;
             _collision = collision;
             _strategies = strategies;
-            _frameWidth = frameWidth;
-            _frameHeight = frameHeight;
+            _frameWidth = frameWidth;   
+            _frameHeight = frameHeight; 
             _moveSpeed = moveSpeed;
         }
 
@@ -49,13 +49,13 @@ namespace PlatformGame.Classes.Character
         {
             bool wasGrounded = _collision.IsGrounded(GetHitbox(), out float groundY);
 
-            // Check attack input (alleen als niet al aan het attacken)
+            // Check attack input
             if (_input.IsAttackPressed() && _attackTimer <= 0 && wasGrounded)
             {
                 _attackTimer = attackDuration;
             }
 
-            // Alleen movement als niet aan het attacken
+            // Movement (alleen als niet aan het attacken)
             if (_attackTimer <= 0)
             {
                 foreach (var strategy in _strategies)
@@ -63,23 +63,32 @@ namespace PlatformGame.Classes.Character
             }
             else
             {
-                // Stop beweging tijdens attack
                 _physics.Velocity = new Vector2(0, _physics.Velocity.Y);
             }
 
             _physics.ApplyGravity(deltaTime);
+
+            _physics.Velocity = _collision.ResolveCollision(GetHitbox(), _physics.Velocity, deltaTime);
+
             _physics.ApplyVelocity(ref _position, deltaTime);
 
+            // Check ground AFTER movement
             bool isGroundedNow = _collision.IsGrounded(GetHitbox(), out float newGroundY);
 
             if (isGroundedNow && _physics.Velocity.Y >= 0)
             {
-                _position.Y = newGroundY - _frameHeight;
-                _physics.Velocity = new Vector2(_physics.Velocity.X, 0);
+                float targetY = newGroundY - _frameHeight;
 
-                if (_wasInAir)
+                // Als we dicht genoeg bij de grond zijn, snap exact
+                if (Math.Abs(_position.Y - targetY) < 10f)
                 {
-                    _landingTimer = landingDuration;
+                    _position.Y = targetY;
+                    _physics.Velocity = new Vector2(_physics.Velocity.X, 0);
+
+                    if (_wasInAir)
+                    {
+                        _landingTimer = landingDuration;
+                    }
                 }
             }
 
@@ -94,8 +103,6 @@ namespace PlatformGame.Classes.Character
 
             UpdateState(isGroundedNow);
             UpdateFacing();
-
-
         }
 
         private void UpdateState(bool isGrounded)
