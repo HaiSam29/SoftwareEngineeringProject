@@ -10,67 +10,60 @@ namespace PlatformGame.Classes.Level
 {
     public class HardcodedLevelLoader: ILevelLoader
     {
+        private readonly Dictionary<string, Func<Level>> _levelFactories;
+
+        public HardcodedLevelLoader()
+        {
+            _levelFactories = new Dictionary<string, Func<Level>>
+            {
+                { "Level1", CreateLevel1 }
+            };
+        }
+
         public Level LoadLevel(string levelName)
         {
-            return levelName switch
+            if (!_levelFactories.ContainsKey(levelName))
             {
-                "Level1" => CreateLevel1(),
-                _ => throw new ArgumentException($"Level '{levelName}' niet gevonden")
-            };
+                throw new ArgumentException($"Level '{levelName}' niet gevonden");
+            }
+
+            return _levelFactories[levelName]();
         }
 
         private Level CreateLevel1()
         {
-            var mapData = new TileType[,]
+            int[,] mapData = new int[,]
             {
-                // Rij 0-4: Lucht
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
+                // Rij 0-4: Lucht (0 = Empty)
+                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                 
                 // Rij 5-6: Lucht
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
+                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                 
-                // Rij 7: Hoge platforms
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Stone, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Stone, TileType.Stone, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
+                // Rij 7: Hoge platforms (5 = Stone)
+                { 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0 },
                 
                 // Rij 8: Mid platforms
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Stone, TileType.Stone, TileType.Stone, TileType.Empty, TileType.Empty, TileType.Stone, TileType.Stone, TileType.Stone, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
+                { 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 0, 0, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0 },
                 
                 // Rij 9: Lage platforms
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Stone, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
+                { 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                 
                 // Rij 10: Lucht
-                { TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty, TileType.Empty },
+                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                 
-                // Rij 11-13: Grond
-                { TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock, TileType.GrassBlock },
-                { TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt},
-                { TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt, TileType.Dirt }
+                // Rij 11-13: Grond (3 = GrassBlock, 4 = Dirt)
+                { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
+                { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 },
+                { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 }
             };
 
-            var collision = new bool[,]
-            {
-                { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-                { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-                { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-                { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-                { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-                { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-                { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-                { false, false, false, false, true,  true,  false, false, false, false, false, false, false, false, false, false, false, false, true,  true,  false, false, false, false },
-                { false, false, false, false, false, false, false, false, true,  true,  true,  false, false, true,  true,  true,  false, false, false, false, false, false, false, false },
-                { false, false, false,  true,  true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true,  true,  false, false },
-                { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-                { true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true  },
-                { true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true  },
-                { true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true  }
-            };
-
-            return new Level("Level1", mapData, collision);
+            return new Level("Level1", mapData);
         }
     }
 }

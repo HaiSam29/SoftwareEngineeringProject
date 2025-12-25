@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Enums
 {
-    public enum TileType
+    public static class TileType
     {
-        Empty,
-        GrassBlock,
-        Dirt,
-        Stone
+        public const int Empty = 0;
+        public const int GrassBlock = 3;
+        public const int Dirt = 4;
+        public const int Stone = 5;
     }
 }

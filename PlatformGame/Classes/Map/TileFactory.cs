@@ -5,25 +5,47 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using PlatformGame.Enums;
+using PlatformGame.Interfaces.Map;
 
 
 namespace PlatformGame.Classes.Map
 {
-    public class TileFactory
+    public class TileFactory: ITileFactory
     {
         private readonly int _tileSize;
         private readonly int _spacing;
+        private readonly Dictionary<int, (int row, int col)> _tilePositions;
+        private readonly HashSet<int> _collidableTiles;
 
         public TileFactory(int tileSize, int spacing = 1)
         {
             _tileSize = tileSize;
             _spacing = spacing;
+
+            _tilePositions = new Dictionary<int, (int row, int col)>
+            {
+                { TileType.Empty, (0, 0) },
+                { TileType.GrassBlock, (0, 0) },
+                { TileType.Dirt, (0, 4) },
+                { TileType.Stone, (2, 7) }
+            };
+
+            _collidableTiles = new HashSet<int>
+            {
+                TileType.GrassBlock,
+                TileType.Dirt,
+                TileType.Stone
+            };
         }
 
-        public Tile CreateTile(TileType type)
+        public Tile CreateTile(int tileType)
         {
-            (int row, int col) = GetTilePosition(type);
+            if (!_tilePositions.ContainsKey(tileType))
+            {
+                tileType = TileType.Empty;
+            }
 
+            var (row, col) = _tilePositions[tileType];
             var sourceRect = new Rectangle(
                 col * (_tileSize + _spacing),
                 row * (_tileSize + _spacing),
@@ -31,19 +53,12 @@ namespace PlatformGame.Classes.Map
                 _tileSize
             );
 
-            return new Tile(type, sourceRect);
+            return new Tile(tileType, sourceRect, IsCollidable(tileType));
         }
 
-        private (int row, int col) GetTilePosition(TileType type)
+        public bool IsCollidable(int tileType)
         {
-            return type switch
-            {
-                
-                TileType.GrassBlock => (0, 0),
-                TileType.Dirt => (0, 4),
-                TileType.Stone => (2,7),
-                _ => (0, 0)
-            };
+            return _collidableTiles.Contains(tileType);
         }
     }
 }
