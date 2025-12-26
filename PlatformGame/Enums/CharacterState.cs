@@ -13,6 +13,7 @@ namespace PlatformGame.Enums
         Jumping,
         Falling,
         Landing,
-        Attacking
+        Attacking,
+        Crouching
     }
 }

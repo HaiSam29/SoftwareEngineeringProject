@@ -57,8 +57,8 @@ namespace PlatformGame.Classes.Character
                 _attackTimer = attackDuration;
             }
 
-            // Movement (alleen als niet aan het attacken)
-            if (_attackTimer <= 0)
+            // Movement (alleen als niet aan het attacken en crouchen)
+            if (_attackTimer <= 0 && !_input.IsCrouchPressed())
             {
                 foreach (var strategy in _strategies)
                     strategy.Execute(_physics, _input, wasGrounded, _moveSpeed);
@@ -132,6 +132,13 @@ namespace PlatformGame.Classes.Character
             if (_attackTimer > 0)
             {
                 CurrentState = CharacterState.Attacking;
+                return;
+            }
+
+            // Crouching
+            if (_input.IsCrouchPressed() && isGrounded)
+            {
+                CurrentState = CharacterState.Crouching;
                 return;
             }
 

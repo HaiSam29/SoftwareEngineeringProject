@@ -11,6 +11,8 @@ namespace PlatformGame.Interfaces.Character
     public interface IInputHandler
     {
         float GetMoveDirectionX();
+        bool IsJumpPressed();
         bool IsAttackPressed();
+        bool IsCrouchPressed();
     }
 }

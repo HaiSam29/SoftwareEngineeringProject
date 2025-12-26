@@ -63,6 +63,7 @@ namespace PlatformGame
             var fallingTexture = Content.Load<Texture2D>("Falling");
             var landingTexture = Content.Load<Texture2D>("Landing");
             var attackingTexture = Content.Load<Texture2D>("Attacking");
+            var crouchingTexture = Content.Load<Texture2D>("Crouching");
 
             // Create collision system
             var collision = new CollisionSystem();
@@ -115,6 +116,7 @@ namespace PlatformGame
             _sprite.RegisterAnimation(CharacterState.Falling, fallingTexture, 1, 0.1f, 64);
             _sprite.RegisterAnimation(CharacterState.Landing, landingTexture, 1, 0.1f, 64);
             _sprite.RegisterAnimation(CharacterState.Attacking, attackingTexture, 8, 0.5f, null, 80);
+            _sprite.RegisterAnimation(CharacterState.Crouching, crouchingTexture, 1, 0.1f);
 
             // Load tilemap
             _tileset = Content.Load<Texture2D>("tilemap");

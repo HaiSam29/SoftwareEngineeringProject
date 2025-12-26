@@ -26,6 +26,11 @@ namespace PlatformGame.Classes.Character
             return x;
         }
 
+        public bool IsJumpPressed()
+        {
+            return Keyboard.GetState().IsKeyDown(Keys.Space) || Keyboard.GetState().IsKeyDown(Keys.Up) || Keyboard.GetState().IsKeyDown(Keys.W);
+        }
+
         public bool IsAttackPressed()
         {
             var keys = Keyboard.GetState();
@@ -42,6 +47,11 @@ namespace PlatformGame.Classes.Character
                 _wasAttackPressed = false;
 
             return false;
+        }
+
+        public bool IsCrouchPressed()
+        {
+            return Keyboard.GetState().IsKeyDown(Keys.Down) || Keyboard.GetState().IsKeyDown(Keys.S);
         }
     }
 }

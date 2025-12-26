@@ -21,13 +21,12 @@ namespace PlatformGame.Classes.Character
 
         public void Execute(IPhysicsComponent physics, IInputHandler input, bool isGrounded, float moveSpeed)
         {
-            var keys = Keyboard.GetState();
-            bool isJumpPressed = keys.IsKeyDown(Keys.Space);
+            bool isJumpPressed = input.IsJumpPressed();
 
             // Jump alleen als:
             // - Op de grond staat
-            // - Space wordt ingedrukt
-            // - Space was niet al ingedrukt (voorkomt infinite jump)
+            // - Jump wordt ingedrukt
+            // - Jump was niet al ingedrukt (voorkomt infinite jump)
             if (isGrounded && isJumpPressed && !_wasJumpPressed)
             {
                 physics.Velocity = new Vector2(physics.Velocity.X, -_jumpForce);
