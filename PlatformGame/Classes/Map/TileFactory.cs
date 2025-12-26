@@ -26,7 +26,8 @@ namespace PlatformGame.Classes.Map
                 { TileType.Empty, (0, 0) },
                 { TileType.GrassBlock, (0, 0) },
                 { TileType.Dirt, (0, 4) },
-                { TileType.Stone, (2, 7) }
+                { TileType.Stone, (2, 7) },
+                { TileType.Plant, (6, 4) }
             };
 
             _collidableTiles = new HashSet<int>

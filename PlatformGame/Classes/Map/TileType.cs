@@ -12,5 +12,6 @@ namespace PlatformGame.Classes.Map
         public const int GrassBlock = 3;
         public const int Dirt = 4;
         public const int Stone = 5;
+        public const int Plant = 6;
     }
 }
