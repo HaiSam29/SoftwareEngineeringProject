@@ -84,7 +84,7 @@ namespace PlatformGame.Classes.Character
                 float targetY = newGroundY - _frameHeight;
 
                 // Als we dicht genoeg bij de grond zijn, snap exact
-                if (Math.Abs(_position.Y - targetY) < 10f)
+                if (Math.Abs(_position.Y - targetY) < 20f)
                 {
                     _position.Y = targetY;
                     _physics.Velocity = new Vector2(_physics.Velocity.X, 0);
@@ -138,7 +138,14 @@ namespace PlatformGame.Classes.Character
             // In de lucht = Jumping
             if (!isGrounded)
             {
-                CurrentState = CharacterState.Jumping;
+                if (_physics.Velocity.Y < 0)
+                {
+                    CurrentState = CharacterState.Jumping;  // Beweegt omhoog
+                }
+                else
+                {
+                    CurrentState = CharacterState.Falling;  // Beweegt omlaag
+                }
                 return;
             }
 

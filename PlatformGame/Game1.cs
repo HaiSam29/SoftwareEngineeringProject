@@ -60,6 +60,7 @@ namespace PlatformGame
             var idleTexture = Content.Load<Texture2D>("idle");
             var runningTexture = Content.Load<Texture2D>("Running");
             var jumpingTexture = Content.Load<Texture2D>("Jumping");
+            var fallingTexture = Content.Load<Texture2D>("Falling");
             var landingTexture = Content.Load<Texture2D>("Landing");
             var attackingTexture = Content.Load<Texture2D>("Attacking");
 
@@ -101,16 +102,17 @@ namespace PlatformGame
                 collision,
                 strategies,
                 screenBounds,
-                scaledCharacterSize,  // frameWidth = 144 (dit is je HITBOX)
-                scaledCharacterSize,  // frameHeight = 144 (dit is je HITBOX)
+                scaledCharacterSize,  // frameWidth = HITBOX
+                scaledCharacterSize,  // frameHeight = HITBOX
                 GameConfig.characterMoveSpeed
             );
 
-            // Register sprite animations - SPRITE is 48x48 (unscaled)
+            // Register sprite animations - SPRITE is (unscaled)
             _sprite = new Sprite(GameConfig.characterFrameSize, GameConfig.characterFrameSize);
             _sprite.RegisterAnimation(CharacterState.Idle, idleTexture, 4, 0.2f);
             _sprite.RegisterAnimation(CharacterState.Running, runningTexture, 6, 0.12f);
             _sprite.RegisterAnimation(CharacterState.Jumping, jumpingTexture, 1, 0.1f, 64);
+            _sprite.RegisterAnimation(CharacterState.Falling, fallingTexture, 1, 0.1f, 64);
             _sprite.RegisterAnimation(CharacterState.Landing, landingTexture, 1, 0.1f, 64);
             _sprite.RegisterAnimation(CharacterState.Attacking, attackingTexture, 8, 0.5f, null, 80);
 
