@@ -85,15 +85,5 @@ namespace PlatformGame.Classes.Character
 
             return offset;
         }
-
-
-        private class AnimationData
-        {
-            public Texture2D Texture { get; set; }
-            public int FrameCount { get; set; }
-            public float FrameDuration { get; set; }
-            public int FrameHeight { get; set; }
-            public int FrameWidth { get; set; }
-        }
     }
 }
