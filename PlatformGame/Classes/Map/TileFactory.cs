@@ -24,17 +24,32 @@ namespace PlatformGame.Classes.Map
             _tilePositions = new Dictionary<int, (int row, int col)>
             {
                 { TileType.Empty, (0, 0) },
-                { TileType.GrassBlock, (0, 0) },
-                { TileType.Dirt, (0, 4) },
+                { TileType.GrassLeft, (1, 1) },
+                { TileType.GrassMiddel, (1, 2) },
+                { TileType.GrassRight, (1, 3) },
+                { TileType.Dirt, (6, 2) },
                 { TileType.Stone, (2, 7) },
-                { TileType.Plant, (6, 4) }
+                { TileType.Plant, (6, 4) },
+                { TileType.PlantHigh, (6, 5) },
+                { TileType.MushRoom, (6, 8) },
+                { TileType.ArrowLeft, (4, 7) },
+                { TileType.ArrowRight, (4, 8) },
+                { TileType.StoneLeft, (2, 8) },
+                { TileType.StoneMiddel, (2, 9) },
+                { TileType.StoneRight, (2, 10) }
             };
 
             _collidableTiles = new HashSet<int>
             {
-                TileType.GrassBlock,
+                TileType.GrassLeft,
+                TileType.GrassMiddel,
+                TileType.GrassRight,
                 TileType.Dirt,
-                TileType.Stone
+                TileType.Stone,
+                TileType.StoneLeft,
+                TileType.StoneMiddel,
+                TileType.StoneRight,
+
             };
         }
 

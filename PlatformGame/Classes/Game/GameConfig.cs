@@ -18,7 +18,7 @@ namespace PlatformGame.Classes.Game
 
         // Character
         public const int characterFrameSize = 48;
-        public const float characterScale = 1.25f;
+        public const float characterScale = 1.2f;
         public const float characterMoveSpeed = 250f;
 
         // Physics
