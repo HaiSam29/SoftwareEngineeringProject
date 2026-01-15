@@ -141,17 +141,20 @@ namespace PlatformGame
             // ENEMY SETUP
             _enemyManager = new EnemyManager();
 
-            Texture2D enemyTexture = new Texture2D(GraphicsDevice, 1, 1);
-            enemyTexture.SetData(new[] { Color.Red });
+            Texture2D enemyTexture = Content.Load<Texture2D>("Enemy1Walk");
 
-            var frames = new List<Rectangle>
+            int spriteFrameWidth = 96;
+            int spriteFrameHeight = 96;
+            int numberOfFrames = 7;
+
+            var frames = new List<Rectangle>();
+            for (int i = 0; i < numberOfFrames; i++)
             {
-                new Rectangle(0, 0, 1, 1)
-            };
+                frames.Add(new Rectangle(i * spriteFrameWidth, 0, spriteFrameWidth, spriteFrameHeight));
+            }
 
-            int enemySize = 48;
+            int enemySize = 72;
 
-            // Enemy 1
             _enemyManager.AddEnemy(new Enemy(
                 new Vector2(15 * tileSize, (2 * tileSize) + tileSize - enemySize),
                 enemyTexture,
@@ -159,9 +162,11 @@ namespace PlatformGame
                 speed: 70f,
                 patrolDistance: 200f,
                 _tileCollisionProvider,
-                tileSize
+                tileSize,
+                enemySize
             ));
 
+            /*
             // Enemy 2
             _enemyManager.AddEnemy(new Enemy(
                 new Vector2(15 * tileSize, (8 * tileSize) + tileSize - enemySize),
@@ -182,7 +187,7 @@ namespace PlatformGame
                 patrolDistance: 1000f,
                 _tileCollisionProvider,
                 tileSize
-            ));
+            ));*/
         }
 
         protected override void Update(GameTime gameTime)

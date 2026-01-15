@@ -26,7 +26,7 @@ namespace PlatformGame.Classes.Enemy
         public Rectangle Bounds => new Rectangle((int)_position.X, (int)_position.Y, _size, _size);
 
         public Enemy(Vector2 position, Texture2D texture, Animation animation,
-            float speed, float patrolDistance, ITileCollisionProvider collisionProvider, int tileSize)
+            float speed, float patrolDistance, ITileCollisionProvider collisionProvider, int tileSize, int size)
         {
             _position = position;
             _startPosition = position;
@@ -36,7 +36,7 @@ namespace PlatformGame.Classes.Enemy
             _patrolDistance = patrolDistance;
             _collisionProvider = collisionProvider;
             _tileSize = tileSize;
-            _size = 48;
+            _size = size;
             _direction = 1;
         }
 
@@ -77,14 +77,35 @@ namespace PlatformGame.Classes.Enemy
 
         public void Draw(SpriteBatch spriteBatch, Vector2 cameraOffset)
         {
-            Rectangle destRect = new Rectangle(
-                (int)(_position.X + cameraOffset.X),
-                (int)(_position.Y + cameraOffset.Y),
-                _size, 
-                _size
-            );
+            Rectangle sourceRect = _animation.CurrentFrame;
 
-            spriteBatch.Draw(_texture, destRect, null, Color.Red, 0f, Vector2.Zero, SpriteEffects.None, 0f);
+            // 1. BEREKEN SCHAAL
+            float scale = (float)_size / sourceRect.Width;
+
+            // 2. ORIGIN (Draaipunt)
+            Vector2 origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
+
+            // 3. POSITIE
+            float centerX = _position.X + (_size / 2f);
+            float centerY = _position.Y + (_size / 2f);
+
+            centerY = _position.Y + _size - (sourceRect.Height * scale / 2f);
+
+            Vector2 drawPos = new Vector2(centerX, centerY) + cameraOffset;
+
+            SpriteEffects effect = _direction < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            spriteBatch.Draw(
+                _texture,
+                drawPos,
+                sourceRect,
+                Color.White,
+                0f,
+                origin,     
+                scale,     
+                effect,    
+                0f
+            );
         }
     }
 }
