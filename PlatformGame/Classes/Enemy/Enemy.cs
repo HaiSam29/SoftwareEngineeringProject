@@ -23,7 +23,24 @@ namespace PlatformGame.Classes.Enemy
         private readonly ITileCollisionProvider _collisionProvider;
         private readonly int _tileSize;
 
-        public Rectangle Bounds => new Rectangle((int)_position.X, (int)_position.Y, _size, _size);
+        public Rectangle Bounds
+        {
+            get
+            {
+                // Hoeveel pixels we eraf halen aan de zijkanten
+                int sideMargin = 25;
+
+                // Hoeveel pixels we eraf halen aan de bovenkant (zodat je er net iets overheen kan springen)
+                int topMargin = 20;
+
+                return new Rectangle(
+                    (int)_position.X + sideMargin,        // X opschuiven
+                    (int)_position.Y + topMargin,         // Y opschuiven
+                    _size - (sideMargin * 2),             // Smeller maken
+                    _size - topMargin                     // Iets minder hoog
+                );
+            }
+        }
 
         public Enemy(Vector2 position, Texture2D texture, Animation animation,
             float speed, float patrolDistance, ITileCollisionProvider collisionProvider, int tileSize, int size)

@@ -12,6 +12,7 @@ namespace PlatformGame.Classes.Enemy
     public class EnemyManager
     {
         private readonly List<IEnemy> _enemies = new List<IEnemy>();
+        public int EnemyCount => _enemies.Count;
 
         public void AddEnemy(IEnemy enemy) => _enemies.Add(enemy);
 
@@ -35,6 +36,12 @@ namespace PlatformGame.Classes.Enemy
                     return enemy;
             }
             return null;
+        }
+
+        public void RemoveEnemy(IEnemy enemy)
+        {
+            // Verwijder de vijand uit de interne lijst
+            _enemies.Remove(enemy);
         }
     }
 }

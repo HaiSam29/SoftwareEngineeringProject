@@ -37,10 +37,12 @@ namespace PlatformGame.Classes.Game
         private BackgroundClass _background;
         private EnemyManagerClass _enemyManager;
         private Texture2D _tileset;
+        private string _currentLevelName;
 
-        public PlayingState(Game1 game)
+        public PlayingState(Game1 game, string levelName = "Level1")
         {
             _game = game;
+            _currentLevelName = levelName;
             var Content = _game.Content;
 
             _levelLoader = new LevelLoaderClass();
@@ -108,7 +110,7 @@ namespace PlatformGame.Classes.Game
             // Load tilemap
             _tileset = Content.Load<Texture2D>("tilemap");
             ITileFactory factory = new TileFactoryClass(18, 1);
-            _currentLevel = _levelLoader.LoadLevel("Level1");
+            _currentLevel = _levelLoader.LoadLevel(levelName);
 
             var tileMap = new TileMapClass(_currentLevel.MapData, _tileset, tileSize, factory);
 
@@ -119,30 +121,35 @@ namespace PlatformGame.Classes.Game
 
             // ENEMY SETUP
             _enemyManager = new EnemyManagerClass();
-            Texture2D enemyTexture = Content.Load<Texture2D>("Enemy1Walk");
+
+            // Textures laden
+            Texture2D enemy1Texture = Content.Load<Texture2D>("Enemy1Walk");
+            Texture2D enemy2Texture = Content.Load<Texture2D>("Enemy2Walk");
+            Texture2D enemy3Texture = Content.Load<Texture2D>("Enemy3Walk");
 
             int spriteFrameWidth = 96;
             int spriteFrameHeight = 96;
             int numberOfFrames = 7;
-
             var frames = new List<Rectangle>();
-            for (int i = 0; i < numberOfFrames; i++)
-            {
-                frames.Add(new Rectangle(i * spriteFrameWidth, 0, spriteFrameWidth, spriteFrameHeight));
-            }
-
+            for (int i = 0; i < numberOfFrames; i++) frames.Add(new Rectangle(i * spriteFrameWidth, 0, spriteFrameWidth, spriteFrameHeight));
             int enemySize = 72;
 
-            _enemyManager.AddEnemy(new EnemyClass(
-                new Vector2(15 * tileSize, (2 * tileSize) + tileSize - enemySize),
-                enemyTexture,
-                new AnimationClass(frames, 0.15f),
-                speed: 70f,
-                patrolDistance: 200f,
-                _tileCollisionProvider,
-                tileSize,
-                enemySize
-            ));
+            // PLAATS ENEMIES OP BASIS VAN LEVEL NAAM
+            if (levelName == "Level1")
+            {
+                // Level 1
+                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (2 * tileSize) + tileSize - enemySize), enemy1Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
+                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (8 * tileSize) + tileSize - enemySize), enemy2Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
+                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (14 * tileSize) + tileSize - enemySize), enemy3Texture, new AnimationClass(frames, 0.15f), 100f, 1000f, _tileCollisionProvider, tileSize, enemySize));
+            }
+            else if (levelName == "Level2")
+            {
+                // Level 2
+                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (2 * tileSize) + tileSize - enemySize), enemy1Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
+                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (8 * tileSize) + tileSize - enemySize), enemy2Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
+                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (14 * tileSize) + tileSize - enemySize), enemy3Texture, new AnimationClass(frames, 0.15f), 100f, 1000f, _tileCollisionProvider, tileSize, enemySize));
+            }
+
         }
 
         public void Update(GameTime gameTime)
@@ -153,10 +160,35 @@ namespace PlatformGame.Classes.Game
             _sprite.Update(_character.CurrentState, deltaTime);
             _enemyManager.Update(gameTime);
 
-            // GAME OVER LOGICA
-            if (_enemyManager.CheckCollision(_character.GetHitbox()) != null)
+            // COLLISION LOGIC
+            var hitEnemy = _enemyManager.CheckCollision(_character.GetHitbox());
+            if (hitEnemy != null)
             {
-                _game.ChangeState(new GameOverState(_game));
+                if (_character.CurrentState == CharacterState.Attacking)
+                {
+                    _enemyManager.RemoveEnemy(hitEnemy);
+                }
+                else
+                {
+                    _game.ChangeState(new GameOverState(_game));
+                    return; // Stop update zodat we niet per ongeluk winnen in dezelfde frame
+                }
+            }
+
+            // WIN CONDITIE
+            // Als alle vijanden dood zijn:
+            if (_enemyManager.EnemyCount == 0)
+            {
+                if (_currentLevelName == "Level1")
+                {
+                    // Ga naar Level 2
+                    _game.ChangeState(new PlayingState(_game, "Level2"));
+                }
+                else if (_currentLevelName == "Level2")
+                {
+                    // Klaar! Naar Victory
+                    _game.ChangeState(new VictoryState(_game));
+                }
             }
         }
 

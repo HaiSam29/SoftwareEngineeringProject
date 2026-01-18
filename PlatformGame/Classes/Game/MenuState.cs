@@ -50,12 +50,14 @@ namespace PlatformGame.Classes.Game
         {
             MouseState mouse = Mouse.GetState();
 
-            // Check of muis op de knop staat
+            // 1. EERST checken waar de muis is
             _isHovering = _startButtonRect.Contains(mouse.Position);
 
+            // 2. DAN pas checken of er geklikt wordt
             if (_isHovering && mouse.LeftButton == ButtonState.Pressed)
             {
-                _game.ChangeState(new PlayingState(_game));
+                // Start expliciet Level 1
+                _game.ChangeState(new PlayingState(_game, "Level1"));
             }
         }
 
