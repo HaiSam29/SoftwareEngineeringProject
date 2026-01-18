@@ -73,6 +73,13 @@
 /processorParam:TextureFormat=Color
 /build:Falling.png
 
+#begin GameFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:GameFont.spritefont
+
 #begin idle.png
 /importer:TextureImporter
 /processor:TextureProcessor

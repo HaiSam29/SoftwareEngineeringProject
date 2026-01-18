@@ -8,6 +8,107 @@ using PlatformGame.Classes.Level;
 using PlatformGame.Classes.Map;
 using PlatformGame.Enums;
 using PlatformGame.Interfaces.Character;
+using PlatformGame.Interfaces.Game;
+using PlatformGame.Interfaces.Ilevel;
+using PlatformGame.Interfaces.Map;
+using System.Collections.Generic;
+
+namespace PlatformGame
+{
+    public class Game1 : Game
+    {
+        private GraphicsDeviceManager _graphics;
+        private SpriteBatch _spriteBatch;
+
+        // De huidige status van het spel (Menu, Spelen, Game Over)
+        private IGameState _currentState;
+
+        // Om te onthouden welke toetsen vorige frame waren ingedrukt (voor F11 toggle)
+        private KeyboardState _previousKeyboardState;
+
+        public Game1()
+        {
+            _graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+            IsMouseVisible = true;
+
+            _graphics.PreferredBackBufferWidth = GameConfig.screenWidth;
+            _graphics.PreferredBackBufferHeight = GameConfig.screenHeight;
+            _graphics.ApplyChanges();
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+        }
+
+        protected override void LoadContent()
+        {
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            // We beginnen in het Menu
+            _currentState = new MenuState(this);
+        }
+
+        // Deze methode zorgt dat States kunnen wisselen (bijv. van Menu naar Playing)
+        public void ChangeState(IGameState newState)
+        {
+            _currentState = newState;
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+            // Haal de huidige status van het toetsenbord op
+            KeyboardState currentKeyboardState = Keyboard.GetState();
+
+            // Sluiten met Escape
+            if (currentKeyboardState.IsKeyDown(Keys.Escape))
+                Exit();
+
+            //F11 FULLSCREEN LOGICA
+            if (currentKeyboardState.IsKeyDown(Keys.F11) && !_previousKeyboardState.IsKeyDown(Keys.F11))
+            {
+                _graphics.IsFullScreen = !_graphics.IsFullScreen;
+                _graphics.ApplyChanges();
+            }
+
+            // Update de huidige state (Menu, Playing, etc.)
+            _currentState.Update(gameTime);
+
+            // Sla de keyboard state op voor de volgende frame
+            _previousKeyboardState = currentKeyboardState;
+
+            base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+            // Delegeer het tekenen naar de huidige state
+            _currentState.Draw(_spriteBatch);
+
+            _spriteBatch.End();
+
+            base.Draw(gameTime);
+        }
+    }
+}
+
+// Met Enemies
+/*
+sing Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using PlatformGame.Classes.Character;
+using PlatformGame.Classes.Enemy;
+using PlatformGame.Classes.Game;
+using PlatformGame.Classes.Level;
+using PlatformGame.Classes.Map;
+using PlatformGame.Enums;
+using PlatformGame.Interfaces.Character;
 using PlatformGame.Interfaces.Ilevel;
 using PlatformGame.Interfaces.Map;
 using System.Collections.Generic;
@@ -166,7 +267,7 @@ namespace PlatformGame
                 enemySize
             ));
 
-            /*
+            
             // Enemy 2
             _enemyManager.AddEnemy(new Enemy(
                 new Vector2(15 * tileSize, (8 * tileSize) + tileSize - enemySize),
@@ -187,7 +288,7 @@ namespace PlatformGame
                 patrolDistance: 1000f,
                 _tileCollisionProvider,
                 tileSize
-            ));*/
+            ));
         }
 
         protected override void Update(GameTime gameTime)
@@ -244,7 +345,9 @@ namespace PlatformGame
         }
     }
 }
+*/
 
+// Zonder enemies
 /*
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
