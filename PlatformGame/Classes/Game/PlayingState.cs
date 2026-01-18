@@ -27,7 +27,7 @@ namespace PlatformGame.Classes.Game
     public class PlayingState : IGameState
     {
         private Game1 _game;
-        private SpriteFont _font; // Nodig voor HUD
+        private SpriteFont _font;
 
         private ICharacter _character;
         private ISprite _sprite;
@@ -50,10 +50,8 @@ namespace PlatformGame.Classes.Game
             _currentLevelName = levelName;
             var Content = _game.Content;
 
-            // Laad font voor de levens-teller
             _font = Content.Load<SpriteFont>("GameFont");
 
-            // Maak rode pixel aan
             _redPixel = new Texture2D(_game.GraphicsDevice, 1, 1);
             _redPixel.SetData(new[] { Color.Red });
 
@@ -132,28 +130,71 @@ namespace PlatformGame.Classes.Game
 
             // ENEMY SETUP
             _enemyManager = new EnemyManagerClass();
-            Texture2D enemy1Texture = Content.Load<Texture2D>("Enemy1Walk");
-            Texture2D enemy2Texture = Content.Load<Texture2D>("Enemy2Walk");
-            Texture2D enemy3Texture = Content.Load<Texture2D>("Enemy3Walk");
 
-            int spriteFrameWidth = 96;
-            int spriteFrameHeight = 96;
-            int numberOfFrames = 7;
-            var frames = new List<Rectangle>();
-            for (int i = 0; i < numberOfFrames; i++) frames.Add(new Rectangle(i * spriteFrameWidth, 0, spriteFrameWidth, spriteFrameHeight));
+            // 1. Load Textures (Walk & Attack)
+            Texture2D enemy1Walk = Content.Load<Texture2D>("Enemy1Walk");
+            Texture2D enemy1Attack = Content.Load<Texture2D>("Enemy1Attack");
+
+            Texture2D enemy2Walk = Content.Load<Texture2D>("Enemy2Walk");
+            Texture2D enemy2Attack = Content.Load<Texture2D>("Enemy2Attack");
+
+            Texture2D enemy3Walk = Content.Load<Texture2D>("Enemy3Walk");
+            Texture2D enemy3Attack = Content.Load<Texture2D>("Enemy3Attack");
+
+            // 2. Definieer Frames
+            // Walk: 7 frames van 96x96
+            var walkFrames = new List<Rectangle>();
+            for (int i = 0; i < 7; i++) walkFrames.Add(new Rectangle(i * 96, 0, 96, 96));
+
+            // Attack: 4 frames van 96x96 (totaal 384 breed)
+            var attackFrames = new List<Rectangle>();
+            for (int i = 0; i < 4; i++) attackFrames.Add(new Rectangle(i * 96, 0, 96, 96));
+
             int enemySize = 72;
 
+            // 3. Enemies toevoegen
             if (levelName == "Level1")
             {
-                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (2 * tileSize) + tileSize - enemySize), enemy1Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
-                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (8 * tileSize) + tileSize - enemySize), enemy2Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
-                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (14 * tileSize) + tileSize - enemySize), enemy3Texture, new AnimationClass(frames, 0.15f), 100f, 1000f, _tileCollisionProvider, tileSize, enemySize));
+                // Enemy 1
+                _enemyManager.AddEnemy(new EnemyClass(
+                    new Vector2(15 * tileSize, (2 * tileSize) + tileSize - enemySize),
+                    enemy1Walk, enemy1Attack,
+                    new AnimationClass(walkFrames, 0.15f), new AnimationClass(attackFrames, 0.15f),
+                    70f, 200f, _tileCollisionProvider, tileSize, enemySize));
+
+                // Enemy 2
+                _enemyManager.AddEnemy(new EnemyClass(
+                    new Vector2(15 * tileSize, (8 * tileSize) + tileSize - enemySize),
+                    enemy2Walk, enemy2Attack,
+                    new AnimationClass(walkFrames, 0.15f), new AnimationClass(attackFrames, 0.15f),
+                    70f, 200f, _tileCollisionProvider, tileSize, enemySize));
+
+                // Enemy 3
+                _enemyManager.AddEnemy(new EnemyClass(
+                    new Vector2(15 * tileSize, (14 * tileSize) + tileSize - enemySize),
+                    enemy3Walk, enemy3Attack,
+                    new AnimationClass(walkFrames, 0.15f), new AnimationClass(attackFrames, 0.15f),
+                    100f, 1000f, _tileCollisionProvider, tileSize, enemySize));
             }
             else if (levelName == "Level2")
             {
-                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (2 * tileSize) + tileSize - enemySize), enemy1Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
-                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (8 * tileSize) + tileSize - enemySize), enemy2Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
-                _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (14 * tileSize) + tileSize - enemySize), enemy3Texture, new AnimationClass(frames, 0.15f), 100f, 1000f, _tileCollisionProvider, tileSize, enemySize));
+                _enemyManager.AddEnemy(new EnemyClass(
+                    new Vector2(15 * tileSize, (5 * tileSize) + tileSize - enemySize),
+                    enemy1Walk, enemy1Attack,
+                    new AnimationClass(walkFrames, 0.15f), new AnimationClass(attackFrames, 0.15f),
+                    70f, 200f, _tileCollisionProvider, tileSize, enemySize));
+
+                _enemyManager.AddEnemy(new EnemyClass(
+                    new Vector2(7 * tileSize, (7 * tileSize) + tileSize - enemySize),
+                    enemy2Walk, enemy2Attack,
+                    new AnimationClass(walkFrames, 0.15f), new AnimationClass(attackFrames, 0.15f),
+                    70f, 200f, _tileCollisionProvider, tileSize, enemySize));
+
+                _enemyManager.AddEnemy(new EnemyClass(
+                    new Vector2(23 * tileSize, (7 * tileSize) + tileSize - enemySize),
+                    enemy3Walk, enemy3Attack,
+                    new AnimationClass(walkFrames, 0.15f), new AnimationClass(attackFrames, 0.15f),
+                    100f, 1000f, _tileCollisionProvider, tileSize, enemySize));
             }
         }
 
@@ -161,49 +202,45 @@ namespace PlatformGame.Classes.Game
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // 1. Check Game Over 
             if (_character.Health <= 0)
             {
                 _game.ChangeState(new GameOverState(_game));
                 return;
             }
 
-            // 2. Updates
             _character.Update(deltaTime);
             _sprite.Update(_character.CurrentState, deltaTime);
             _enemyManager.Update(gameTime);
 
-            // 3. COLLISION LOGIC MET LEVENS
             var hitEnemy = _enemyManager.CheckCollision(_character.GetHitbox());
 
             if (hitEnemy != null)
             {
                 if (_character.CurrentState == CharacterState.Attacking)
                 {
-                    // Speler valt aan -> Enemy dood
                     _enemyManager.RemoveEnemy(hitEnemy);
                 }
                 else
                 {
-                    // Speler wordt geraakt -> Probeer schade te doen
-                    bool damageTaken = _character.TakeDamage();
-
-                    if (damageTaken)
+                    // Check of het een EnemyClass is zodat we Attack() kunnen aanroepen
+                    if (hitEnemy is EnemyClass concreteEnemy)
                     {
-                        // Visueel effect triggeren
+                        concreteEnemy.Attack();
+                    }
+
+                    if (_character.TakeDamage())
+                    {
                         _damageFlashOpacity = 0.6f;
                     }
                 }
             }
 
-            // 4. Update rode scherm fade-out
             if (_damageFlashOpacity > 0)
             {
                 _damageFlashOpacity -= 2f * deltaTime;
                 if (_damageFlashOpacity < 0) _damageFlashOpacity = 0;
             }
 
-            // 5. WIN CONDITIE
             if (_enemyManager.EnemyCount == 0)
             {
                 if (_currentLevelName == "Level1")
@@ -228,19 +265,13 @@ namespace PlatformGame.Classes.Game
                 Vector2 drawPosition = _character.Position + _sprite.CalculateDrawOffset(
                     GameConfig.characterFrameSize, GameConfig.characterScale);
 
-                // Check of character onsterfelijk is voor knipper-effect
-                Color drawColor = Color.White;
-                if (_character.IsInvulnerable)
-                {
-                    // Als invulnerable, teken hem iets transparanter 
-                    drawColor = Color.White * 0.5f;
-                }
+                Color drawColor = _character.IsInvulnerable ? Color.White * 0.5f : Color.White;
 
                 spriteBatch.Draw(
                     _sprite.CurrentTexture,
                     drawPosition,
                     _sprite.CurrentFrame,
-                    drawColor, // Gebruik de berekende kleur
+                    drawColor,
                     0f,
                     Vector2.Zero,
                     GameConfig.characterScale,
@@ -249,18 +280,14 @@ namespace PlatformGame.Classes.Game
                 );
             }
 
-            // Levens
+            // HUD
             string text = $"LIVES: {_character.Health}";
             Vector2 pos = new Vector2(20, 20);
-
-            // Zwarte schaduw
             spriteBatch.DrawString(_font, text, pos + new Vector2(2, 2), Color.Black);
-
-            // Tekstkleur (Rood als je bijna dood bent)
             Color textColor = _character.Health == 1 ? Color.Red : Color.White;
             spriteBatch.DrawString(_font, text, pos, textColor);
 
-            // DAMAGE FLASH TEKENEN
+            // DAMAGE FLASH
             if (_damageFlashOpacity > 0)
             {
                 spriteBatch.Draw(_redPixel,

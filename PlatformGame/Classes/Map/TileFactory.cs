@@ -36,7 +36,14 @@ namespace PlatformGame.Classes.Map
                 { TileType.ArrowRight, (4, 8) },
                 { TileType.StoneLeft, (2, 8) },
                 { TileType.StoneMiddel, (2, 9) },
-                { TileType.StoneRight, (2, 10) }
+                { TileType.StoneRight, (2, 10) },
+                { TileType.DirtSnowMiddel, (5, 2) },
+                { TileType.SnowPlant, (7, 4)},
+                { TileType.SnowMan, (7, 5)},
+                { TileType.SnowBmiddel, (4, 2) },
+                { TileType.SnowBLeft, (4, 1) },
+                { TileType.SnowBRight, (4, 3) },
+                { TileType.SnowSingle, (4, 0) }
             };
 
             _collidableTiles = new HashSet<int>
@@ -49,6 +56,11 @@ namespace PlatformGame.Classes.Map
                 TileType.StoneLeft,
                 TileType.StoneMiddel,
                 TileType.StoneRight,
+                TileType.DirtSnowMiddel,
+                TileType.SnowBmiddel,
+                TileType.SnowBLeft,
+                TileType.SnowBRight,
+                TileType.SnowSingle
 
             };
         }
