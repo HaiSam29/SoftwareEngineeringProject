@@ -16,5 +16,8 @@ namespace PlatformGame.Interfaces.Character
         bool FacingLeft { get; }
         void Update(float deltaTime);
         Rectangle GetHitbox();
+        int Health { get; }
+        bool IsInvulnerable { get; } 
+        bool TakeDamage();
     }
 }

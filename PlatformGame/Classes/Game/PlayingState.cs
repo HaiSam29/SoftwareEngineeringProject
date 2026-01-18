@@ -27,6 +27,7 @@ namespace PlatformGame.Classes.Game
     public class PlayingState : IGameState
     {
         private Game1 _game;
+        private SpriteFont _font; // Nodig voor HUD
 
         private ICharacter _character;
         private ISprite _sprite;
@@ -39,11 +40,22 @@ namespace PlatformGame.Classes.Game
         private Texture2D _tileset;
         private string _currentLevelName;
 
+        // Visuals voor damage feedback
+        private Texture2D _redPixel;
+        private float _damageFlashOpacity = 0f;
+
         public PlayingState(Game1 game, string levelName = "Level1")
         {
             _game = game;
             _currentLevelName = levelName;
             var Content = _game.Content;
+
+            // Laad font voor de levens-teller
+            _font = Content.Load<SpriteFont>("GameFont");
+
+            // Maak rode pixel aan
+            _redPixel = new Texture2D(_game.GraphicsDevice, 1, 1);
+            _redPixel.SetData(new[] { Color.Red });
 
             _levelLoader = new LevelLoaderClass();
 
@@ -104,7 +116,6 @@ namespace PlatformGame.Classes.Game
             _sprite.RegisterAnimation(CharacterState.Attacking, attackingTexture, 8, 0.5f, null, 80);
             _sprite.RegisterAnimation(CharacterState.Crouching, crouchingTexture, 1, 0.1f);
 
-            // FORCEER INITIALISATIE (Zodat CurrentTexture niet null is)
             _sprite.Update(CharacterState.Idle, 0);
 
             // Load tilemap
@@ -121,8 +132,6 @@ namespace PlatformGame.Classes.Game
 
             // ENEMY SETUP
             _enemyManager = new EnemyManagerClass();
-
-            // Textures laden
             Texture2D enemy1Texture = Content.Load<Texture2D>("Enemy1Walk");
             Texture2D enemy2Texture = Content.Load<Texture2D>("Enemy2Walk");
             Texture2D enemy3Texture = Content.Load<Texture2D>("Enemy3Walk");
@@ -134,59 +143,75 @@ namespace PlatformGame.Classes.Game
             for (int i = 0; i < numberOfFrames; i++) frames.Add(new Rectangle(i * spriteFrameWidth, 0, spriteFrameWidth, spriteFrameHeight));
             int enemySize = 72;
 
-            // PLAATS ENEMIES OP BASIS VAN LEVEL NAAM
             if (levelName == "Level1")
             {
-                // Level 1
                 _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (2 * tileSize) + tileSize - enemySize), enemy1Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
                 _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (8 * tileSize) + tileSize - enemySize), enemy2Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
                 _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (14 * tileSize) + tileSize - enemySize), enemy3Texture, new AnimationClass(frames, 0.15f), 100f, 1000f, _tileCollisionProvider, tileSize, enemySize));
             }
             else if (levelName == "Level2")
             {
-                // Level 2
                 _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (2 * tileSize) + tileSize - enemySize), enemy1Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
                 _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (8 * tileSize) + tileSize - enemySize), enemy2Texture, new AnimationClass(frames, 0.15f), 70f, 200f, _tileCollisionProvider, tileSize, enemySize));
                 _enemyManager.AddEnemy(new EnemyClass(new Vector2(15 * tileSize, (14 * tileSize) + tileSize - enemySize), enemy3Texture, new AnimationClass(frames, 0.15f), 100f, 1000f, _tileCollisionProvider, tileSize, enemySize));
             }
-
         }
 
         public void Update(GameTime gameTime)
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            // 1. Check Game Over 
+            if (_character.Health <= 0)
+            {
+                _game.ChangeState(new GameOverState(_game));
+                return;
+            }
+
+            // 2. Updates
             _character.Update(deltaTime);
             _sprite.Update(_character.CurrentState, deltaTime);
             _enemyManager.Update(gameTime);
 
-            // COLLISION LOGIC
+            // 3. COLLISION LOGIC MET LEVENS
             var hitEnemy = _enemyManager.CheckCollision(_character.GetHitbox());
+
             if (hitEnemy != null)
             {
                 if (_character.CurrentState == CharacterState.Attacking)
                 {
+                    // Speler valt aan -> Enemy dood
                     _enemyManager.RemoveEnemy(hitEnemy);
                 }
                 else
                 {
-                    _game.ChangeState(new GameOverState(_game));
-                    return; // Stop update zodat we niet per ongeluk winnen in dezelfde frame
+                    // Speler wordt geraakt -> Probeer schade te doen
+                    bool damageTaken = _character.TakeDamage();
+
+                    if (damageTaken)
+                    {
+                        // Visueel effect triggeren
+                        _damageFlashOpacity = 0.6f;
+                    }
                 }
             }
 
-            // WIN CONDITIE
-            // Als alle vijanden dood zijn:
+            // 4. Update rode scherm fade-out
+            if (_damageFlashOpacity > 0)
+            {
+                _damageFlashOpacity -= 2f * deltaTime;
+                if (_damageFlashOpacity < 0) _damageFlashOpacity = 0;
+            }
+
+            // 5. WIN CONDITIE
             if (_enemyManager.EnemyCount == 0)
             {
                 if (_currentLevelName == "Level1")
                 {
-                    // Ga naar Level 2
                     _game.ChangeState(new PlayingState(_game, "Level2"));
                 }
                 else if (_currentLevelName == "Level2")
                 {
-                    // Klaar! Naar Victory
                     _game.ChangeState(new VictoryState(_game));
                 }
             }
@@ -198,23 +223,49 @@ namespace PlatformGame.Classes.Game
             _tileMapRenderer.Draw(spriteBatch, Vector2.Zero);
             _enemyManager.Draw(spriteBatch, Vector2.Zero);
 
-            // VEILIGHEIDSCHECK: Teken alleen als er een texture is!
             if (_sprite.CurrentTexture != null)
             {
                 Vector2 drawPosition = _character.Position + _sprite.CalculateDrawOffset(
                     GameConfig.characterFrameSize, GameConfig.characterScale);
 
+                // Check of character onsterfelijk is voor knipper-effect
+                Color drawColor = Color.White;
+                if (_character.IsInvulnerable)
+                {
+                    // Als invulnerable, teken hem iets transparanter 
+                    drawColor = Color.White * 0.5f;
+                }
+
                 spriteBatch.Draw(
                     _sprite.CurrentTexture,
                     drawPosition,
                     _sprite.CurrentFrame,
-                    Color.White,
+                    drawColor, // Gebruik de berekende kleur
                     0f,
                     Vector2.Zero,
                     GameConfig.characterScale,
                     _character.FacingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                     0f
                 );
+            }
+
+            // Levens
+            string text = $"LIVES: {_character.Health}";
+            Vector2 pos = new Vector2(20, 20);
+
+            // Zwarte schaduw
+            spriteBatch.DrawString(_font, text, pos + new Vector2(2, 2), Color.Black);
+
+            // Tekstkleur (Rood als je bijna dood bent)
+            Color textColor = _character.Health == 1 ? Color.Red : Color.White;
+            spriteBatch.DrawString(_font, text, pos, textColor);
+
+            // DAMAGE FLASH TEKENEN
+            if (_damageFlashOpacity > 0)
+            {
+                spriteBatch.Draw(_redPixel,
+                    new Rectangle(0, 0, GameConfig.screenWidth, GameConfig.screenHeight),
+                    Color.Red * _damageFlashOpacity);
             }
         }
     }

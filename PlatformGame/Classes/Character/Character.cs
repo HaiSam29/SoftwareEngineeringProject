@@ -27,6 +27,10 @@ namespace PlatformGame.Classes.Character
         private const float attackDuration = 0.4f;
         private float _attackTimer;
         private readonly Rectangle _screenBounds;
+        public int Health { get; private set; } = 3;
+        private float _invulnerabilityTimer = 0f;
+        private const float InvulnerabilityDuration = 1.5f;
+        public bool IsInvulnerable => _invulnerabilityTimer > 0;
 
         public Vector2 Position => _position;
         public CharacterState CurrentState { get; private set; } = CharacterState.Idle;
@@ -49,6 +53,12 @@ namespace PlatformGame.Classes.Character
 
         public void Update(float deltaTime)
         {
+            // 1. Update Invulnerability Timer 
+            if (_invulnerabilityTimer > 0)
+            {
+                _invulnerabilityTimer -= deltaTime;
+            }
+
             bool wasGrounded = _collision.IsGrounded(GetHitbox(), out float groundY);
 
             // Check attack input
@@ -107,6 +117,20 @@ namespace PlatformGame.Classes.Character
 
             UpdateState(isGroundedNow);
             UpdateFacing();
+        }
+
+        public bool TakeDamage()
+        {
+            // Als we onsterfelijk zijn, gebeurt er niets
+            if (IsInvulnerable) return false;
+
+            Health--;
+            _invulnerabilityTimer = InvulnerabilityDuration; // Reset de timer
+
+            // Optioneel: Kleine 'knockback' omhoog zodat je voelt dat je geraakt bent
+            _physics.Velocity = new Vector2(_physics.Velocity.X, -200f);
+
+            return true; // We zijn geraakt
         }
 
         private void ClampToScreenBounds()
