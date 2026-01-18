@@ -15,13 +15,16 @@ namespace PlatformGame.Classes.Game
         private Game1 _game;
         private SpriteFont _font;
         private Texture2D _backgroundTexture;
-        private Texture2D _buttonTexture; // De 1x1 pixel
-        private Rectangle _startButtonRect;
+        private Texture2D _buttonTexture;
 
-        // Kleuren instellen
-        private Color _buttonColorNormal = Color.DarkSlateBlue;
-        private Color _buttonColorHover = Color.CornflowerBlue;
-        private bool _isHovering = false;
+        private Rectangle _startRect;  // Grote start knop
+        private Rectangle _lvl1Rect;   // Klein knopje level 1
+        private Rectangle _lvl2Rect;   // Klein knopje level 2
+
+        // Kleuren
+        private Color _btnColorMain = Color.DarkSlateBlue;
+        private Color _btnColorSub = Color.Teal; // Andere kleur voor level knoppen
+        private Color _btnColorHover = Color.CornflowerBlue;
 
         public MenuState(Game1 game)
         {
@@ -31,67 +34,102 @@ namespace PlatformGame.Classes.Game
             _font = content.Load<SpriteFont>("GameFont");
             _backgroundTexture = content.Load<Texture2D>("background");
 
-            // rechthoeken tekenen
             _buttonTexture = new Texture2D(_game.GraphicsDevice, 1, 1);
             _buttonTexture.SetData(new[] { Color.White });
 
-            // Knop positie 
-            int btnWidth = 300;
-            int btnHeight = 60;
-            _startButtonRect = new Rectangle(
-                (GameConfig.screenWidth / 2) - (btnWidth / 2),
-                (GameConfig.screenHeight / 2) + 50, // Iets onder het midden
-                btnWidth,
-                btnHeight
-            );
+            // POSITIES BEPALEN 
+            int screenW = GameConfig.screenWidth;
+            int screenH = GameConfig.screenHeight;
+            int centerX = screenW / 2;
+            int centerY = screenH / 2;
+
+            // 1. De Grote Start Knop
+            int mainW = 300;
+            int mainH = 60;
+            _startRect = new Rectangle(centerX - (mainW / 2), centerY, mainW, mainH);
+
+            // 2. De Kleine Level Knoppen 
+            int subSize = 50;
+            int spacing = 20; // Ruimte tussen de knopjes
+            int startY_Levels = centerY + mainH + 40; // 40px onder de startknop
+
+            // Level 1 knop (links van het midden)
+            _lvl1Rect = new Rectangle(centerX - subSize - (spacing / 2), startY_Levels, subSize, subSize);
+
+            // Level 2 knop (rechts van het midden)
+            _lvl2Rect = new Rectangle(centerX + (spacing / 2), startY_Levels, subSize, subSize);
         }
 
         public void Update(GameTime gameTime)
         {
             MouseState mouse = Mouse.GetState();
+            bool clicked = mouse.LeftButton == ButtonState.Pressed;
+            Point mousePos = mouse.Position;
 
-            // 1. EERST checken waar de muis is
-            _isHovering = _startButtonRect.Contains(mouse.Position);
-
-            // 2. DAN pas checken of er geklikt wordt
-            if (_isHovering && mouse.LeftButton == ButtonState.Pressed)
+            // Check Hoofdknop (Start Game -> Level 1)
+            if (_startRect.Contains(mousePos) && clicked)
             {
-                // Start expliciet Level 1
                 _game.ChangeState(new PlayingState(_game, "Level1"));
+            }
+
+            // Check Level 1 selectie
+            else if (_lvl1Rect.Contains(mousePos) && clicked)
+            {
+                _game.ChangeState(new PlayingState(_game, "Level1"));
+            }
+
+            // Check Level 2 selectie
+            else if (_lvl2Rect.Contains(mousePos) && clicked)
+            {
+                _game.ChangeState(new PlayingState(_game, "Level2"));
             }
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            // 1. Teken de achtergrond 
+            // Achtergrond
             spriteBatch.Draw(_backgroundTexture, new Rectangle(0, 0, GameConfig.screenWidth, GameConfig.screenHeight), Color.Gray);
 
-            // 2. Teken de Titel met Schaduw
+            // Titel
             string title = "PLATFORMER GAME";
             Vector2 titleSize = _font.MeasureString(title);
-            Vector2 titlePos = new Vector2((GameConfig.screenWidth / 2) - (titleSize.X / 2), 200);
-
-            // Schaduw 
+            Vector2 titlePos = new Vector2((GameConfig.screenWidth / 2) - (titleSize.X / 2), 150);
             spriteBatch.DrawString(_font, title, titlePos + new Vector2(4, 4), Color.Black);
-            // Echte tekst 
             spriteBatch.DrawString(_font, title, titlePos, Color.Gold);
 
+            // 1. Teken Grote Start Knop
+            DrawButton(spriteBatch, _startRect, "START GAME", _btnColorMain);
 
-            // 3. Teken de Knop 
-            // Als we hoveren gebruiken we de lichte kleur, anders de donkere
-            Color currentColor = _isHovering ? _buttonColorHover : _buttonColorNormal;
+            // Tekstje boven de level knoppen
+            string subText = "Or select level:";
+            Vector2 subSize = _font.MeasureString(subText);
+            spriteBatch.DrawString(_font, subText,
+                new Vector2((GameConfig.screenWidth / 2) - (subSize.X / 2), _lvl1Rect.Y - 25),
+                Color.White);
 
-            spriteBatch.Draw(_buttonTexture, _startButtonRect, currentColor);
+            // 2. Teken Level Knoppen
+            DrawButton(spriteBatch, _lvl1Rect, "1", _btnColorSub);
+            DrawButton(spriteBatch, _lvl2Rect, "2", _btnColorSub);
+        }
 
-            // 4. Teken Tekst op de knop
-            string btnText = "START GAME";
-            Vector2 btnTextSize = _font.MeasureString(btnText);
-            Vector2 btnTextPos = new Vector2(
-                _startButtonRect.X + (_startButtonRect.Width / 2) - (btnTextSize.X / 2),
-                _startButtonRect.Y + (_startButtonRect.Height / 2) - (btnTextSize.Y / 2)
+        // Hulpfunctie met extra parameter voor kleur
+        private void DrawButton(SpriteBatch spriteBatch, Rectangle rect, string text, Color baseColor)
+        {
+            MouseState mouse = Mouse.GetState();
+            bool isHovering = rect.Contains(mouse.Position);
+
+            // Hover kleur of de basiskleur die we meegeven
+            Color color = isHovering ? _btnColorHover : baseColor;
+
+            spriteBatch.Draw(_buttonTexture, rect, color);
+
+            Vector2 textSize = _font.MeasureString(text);
+            Vector2 textPos = new Vector2(
+                rect.X + (rect.Width / 2) - (textSize.X / 2),
+                rect.Y + (rect.Height / 2) - (textSize.Y / 2)
             );
 
-            spriteBatch.DrawString(_font, btnText, btnTextPos, Color.White);
+            spriteBatch.DrawString(_font, text, textPos, Color.White);
         }
     }
 }
