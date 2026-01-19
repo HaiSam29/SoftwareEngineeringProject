@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework;
 
 namespace PlatformGame.Classes.Map
 {
+    // Laadt één texture en berekent een _destinationRect zodat de achtergrond wordt geschaald en gecentreerd op het scherm
+    // SRP  Doet alleen background-rendering en schaalberekening
+    // OCP/DIP: Wordt alleen via constructor gebruikt, geen afhankelijkheden op andere game‑logica
     public class Background
     {
         private Texture2D _texture;
@@ -32,6 +35,7 @@ namespace PlatformGame.Classes.Map
             _destinationRect = new Rectangle(x, y, width, height);
         }
 
+        //  Tekent de background
         public void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(_texture, _destinationRect, Color.White);

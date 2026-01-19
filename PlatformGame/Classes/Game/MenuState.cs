@@ -10,6 +10,11 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Game
 {
+    // Tekent het hoofdmenu + levelkeuze
+    // Handelt muisinput af om naar PlayingState te gaan 
+    // SRP Doet alleen menu‑presentatie + menu‑input, geen game‑logic
+    // DIP Krijgt Game1 en IGameConfig via constructor, Wisselt state via Game1.ChangeState
+    // OCP Nieuwe menu‑opties = alleen MenuState aanpassen, andere classes hoeven niet mee te veranderen
     public class MenuState : IGameState
     {
         private Game1 _game;
@@ -39,7 +44,7 @@ namespace PlatformGame.Classes.Game
             _buttonTexture = new Texture2D(_game.GraphicsDevice, 1, 1);
             _buttonTexture.SetData(new[] { Color.White });
 
-            // GEBRUIK _config.ScreenWidth IPV GameConfig.screenWidth
+            // GEBRUIK _config.ScreenWidth 
             int screenW = _config.ScreenWidth;
             int screenH = _config.ScreenHeight;
             int centerX = screenW / 2;
@@ -63,7 +68,7 @@ namespace PlatformGame.Classes.Game
             bool clicked = mouse.LeftButton == ButtonState.Pressed;
             Point mousePos = mouse.Position;
 
-            // FIX: Geef de _config mee aan PlayingState!
+            // Geef de _config mee aan PlayingState!
             if (_startRect.Contains(mousePos) && clicked)
             {
                 _game.ChangeState(new PlayingState(_game, _config, "Level1"));
@@ -104,6 +109,8 @@ namespace PlatformGame.Classes.Game
             DrawButton(spriteBatch, _lvl2Rect, "2", _btnColorSub);
         }
 
+        // Bepaalt hover via rect.Contains(mouse.Position)
+        // Tekent een gekleurde rechthoek + gecentreerde tekst
         private void DrawButton(SpriteBatch spriteBatch, Rectangle rect, string text, Color baseColor)
         {
             MouseState mouse = Mouse.GetState();

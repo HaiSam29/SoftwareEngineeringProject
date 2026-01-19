@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Character
 {
+    // Beheert de visuele weergave. Het weet welke texture bij welke state hoort en welk plaatje frame er getoond moet worden.
     public class Sprite: ISprite
     {
         private readonly Dictionary<CharacterState, AnimationData> _animations = new();
@@ -63,10 +64,13 @@ namespace PlatformGame.Classes.Character
                 _currentFrame = (_currentFrame + 1) % anim.FrameCount;
             }
 
-            // Gebruik custom width én height per animatie
+            // Gebruik custom width en height per animatie
             CurrentFrame = new Rectangle(_currentFrame * anim.FrameWidth, 0, anim.FrameWidth, anim.FrameHeight);
         }
 
+        // Soms is een aanval animatie plaatje groter dan een idle plaatje.
+        // Als je die gewoon tekent, lijkt het alsof de speler in de grond zakt.
+        // Deze methode berekent hoeveel pixels we het plaatje omhoog of opzij moeten schuiven zodat de voeten op dezelfde plek blijven staan.
         public Vector2 CalculateDrawOffset(int baseFrameSize, float scale)
         {
             Vector2 offset = Vector2.Zero;

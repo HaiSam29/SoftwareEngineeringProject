@@ -6,10 +6,8 @@ using PlatformGame.Interfaces.Character;
 using PlatformGame.Interfaces.Ilevel;
 using PlatformGame.Interfaces.Map;
 using System.Collections.Generic;
-using PlatformGame.Classes.Enemy;     
-using PlatformGame.Classes.Character; 
-
-// Classes imports
+using PlatformGame.Classes.Enemy;
+using PlatformGame.Classes.Character;
 using CharacterClass = PlatformGame.Classes.Character.Character;
 using EnemyClass = PlatformGame.Classes.Enemy.Enemy;
 using EnemyManagerClass = PlatformGame.Classes.Enemy.EnemyManager;
@@ -22,13 +20,24 @@ using BackgroundClass = PlatformGame.Classes.Map.Background;
 using SpriteClass = PlatformGame.Classes.Character.Sprite;
 using PlatformGame.Classes.Level;
 using Microsoft.Xna.Framework.Input;
+using PlatformGame.Interfaces.Enemy;
 
 namespace PlatformGame.Classes.Game
 {
+    // Speel state
+    // SRP Coördineert veel, maar de details zijn uitbesteed
+    // Levelcreatie → LevelFactory
+    // Character → CharacterFactory
+    // Enemies → EnemyFactory + EnemyManager
+    // Collision bij enemy → EnemyManager.CheckCollision + enemy Attack/TakeDamage
+    // Voor een spelstate is dit een gebruikelijke hoeveelheid verantwoordelijkheid
+    // DIP Ontvangt IGameConfig via constructor en Gebruikt interfaces voor alle game‑objecten
+    // OCP Nieuwe enemies of beweging → via factories/strategies, zonder PlayingState te wijzigen
+    // Nieuwe levels → via LevelFactory/LevelLoader
     public class PlayingState : IGameState
     {
         private Game1 _game;
-        private IGameConfig _config; // Config opslaan!
+        private IGameConfig _config;
         private SpriteFont _font;
 
         private ICharacter _character;
@@ -44,11 +53,10 @@ namespace PlatformGame.Classes.Game
         private Texture2D _redPixel;
         private float _damageFlashOpacity = 0f;
 
-        // Constructor accepteert nu IGameConfig
         public PlayingState(Game1 game, IGameConfig config, string levelName = "Level1")
         {
             _game = game;
-            _config = config; // Dependency Injection
+            _config = config;
             _currentLevelName = levelName;
             var Content = _game.Content;
 
@@ -56,8 +64,7 @@ namespace PlatformGame.Classes.Game
             _redPixel = new Texture2D(_game.GraphicsDevice, 1, 1);
             _redPixel.SetData(new[] { Color.Red });
 
-            // --- LEVEL SETUP ---
-            // Geef config door aan LevelFactory
+            // LEVEL SETUP 
             var levelFactory = new LevelFactory(Content, _config);
 
             _background = levelFactory.CreateBackground();
@@ -65,13 +72,11 @@ namespace PlatformGame.Classes.Game
 
             int tileSize = 60;
 
-            // --- CHARACTER SETUP ---
-            // Geef config door aan CharacterFactory
+            // CHARACTER SETUP 
             var charFactory = new CharacterFactory(Content, _config);
 
             int startTileX = 0;
             int groundTileY = 15;
-            // Gebruik config waarden ipv static
             int charSize = (int)(_config.CharacterFrameSize * _config.CharacterScale);
 
             Vector2 startPos = new Vector2(startTileX * tileSize, (groundTileY * tileSize) - charSize);
@@ -79,9 +84,14 @@ namespace PlatformGame.Classes.Game
 
             (_character, _sprite) = charFactory.CreateCharacter(startPos, screenBounds, _tileCollisionProvider, tileSize);
 
-            // --- ENEMY SETUP ---
-            // Geef config door aan EnemyFactory
-            var enemyFactory = new EnemyFactory(Content, _config);
+            //  ENEMY SETUP 
+            // Maak renderer en boundsProvider aan
+            IEnemyRenderer enemyRenderer = new EnemyRenderer();
+            IBoundsProvider boundsProvider = new DefaultBoundsProvider(sideMargin: 25, topMargin: 20);
+            IEnemyStateFactory stateFactory = new EnemyStateFactory();
+
+            // Geef renderer en boundsProvider mee
+            var enemyFactory = new EnemyFactory(Content, _config, stateFactory, enemyRenderer, boundsProvider);
             _enemyManager = new EnemyManagerClass();
 
             LoadEnemies(levelName, enemyFactory, tileSize);
@@ -89,7 +99,7 @@ namespace PlatformGame.Classes.Game
 
         private void LoadEnemies(string levelName, EnemyFactory factory, int tileSize)
         {
-            int enemySize = 72; // Dit zou je eventueel ook in config kunnen zetten
+            int enemySize = 72;
 
             if (levelName == "Level1")
             {
@@ -116,15 +126,21 @@ namespace PlatformGame.Classes.Game
             _enemyManager.AddEnemy(enemy);
         }
 
+        // Checkt eerst of de speler dood is → zo ja direct naar GameOverState
+        // Anders:
+        // _character.Update
+        // _sprite.Update
+        // _enemyManager.Update
+        // CheckCollisions
+        // Damage flash effect laten aflopen
+        // Winconditie
         public void Update(GameTime gameTime)
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            
-
             if (_character.Health <= 0)
             {
-                _game.ChangeState(new GameOverState(_game, _config)); // Geef config door!
+                _game.ChangeState(new GameOverState(_game, _config));
                 return;
             }
 
@@ -142,12 +158,17 @@ namespace PlatformGame.Classes.Game
 
             if (_enemyManager.EnemyCount == 0)
             {
-                if (_currentLevelName == "Level1") _game.ChangeState(new PlayingState(_game, _config, "Level2"));
-                else if (_currentLevelName == "Level2") _game.ChangeState(new VictoryState(_game, _config));
+                if (_currentLevelName == "Level1")
+                    _game.ChangeState(new PlayingState(_game, _config, "Level2"));
+                else if (_currentLevelName == "Level2")
+                    _game.ChangeState(new VictoryState(_game, _config));
             }
         }
 
-        // ... Rest van collisions (blijft hetzelfde) ...
+        // Vraagt _enemyManager.CheckCollision(_character.GetHitbox())
+        // Als hit: 
+        // Als character in Attacking‑state → enemy wordt verwijderd
+        // Anders → enemy krijgt Attack(), character krijgt TakeDamage() en damage flash wordt geactiveerd.
         private void CheckCollisions()
         {
             var hitEnemy = _enemyManager.CheckCollision(_character.GetHitbox());
@@ -158,7 +179,8 @@ namespace PlatformGame.Classes.Game
                 else
                 {
                     hitEnemy.Attack();
-                    if (_character.TakeDamage()) _damageFlashOpacity = 0.6f;
+                    if (_character.TakeDamage())
+                        _damageFlashOpacity = 0.6f;
                 }
             }
         }

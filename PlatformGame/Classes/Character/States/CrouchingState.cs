@@ -9,6 +9,8 @@ using PlatformGame.Interfaces.Character;
 
 namespace PlatformGame.Classes.Character.States
 {
+    // Speler bukt
+    // Zolang de knop ingedrukt is, blijf bukken. Zodra losgelaten -> Idle.
     public class CrouchingState : CharacterStateBase
     {
         public override void Enter(ICharacterContext context)

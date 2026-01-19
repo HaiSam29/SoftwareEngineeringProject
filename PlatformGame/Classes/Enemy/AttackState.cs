@@ -11,6 +11,10 @@ using PlatformGame.Enums;
 
 namespace PlatformGame.Classes.Enemy
 {
+    // De aanval state.
+    // Speelt de attack-animatie af, en zodra die klaar is IsFinished, gaat de enemy terug naar PatrolState.
+    // SRP Doet alleen attack-gedrag
+    // State Pattern: De enemy hoeft niet te weten wanneer een aanval klaar is; de state beslist dat.
     public class AttackState : IEnemyState
     {
         public void Enter(IEnemyContext context)
@@ -27,15 +31,13 @@ namespace PlatformGame.Classes.Enemy
 
             if (context.CurrentAnimation.IsFinished)
             {
-                // OUD: context.SetState(new PatrolState());
-                // NIEUW:
                 context.TransitionTo(EnemyStateType.Patrol);
             }
         }
 
         public void Draw(SpriteBatch spriteBatch, IEnemyContext context)
         {
-            context.DrawHelper(spriteBatch);
+            // States doen niet langer rendering 
         }
     }
 }

@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Character
 {
+    // Dit zijn beweging.
+    // Kijkt of je op de grond staat en drukt op springen -> geeft verticale snelheid omhoog.
+    // OCP Wil je iets toevoegen. Maak een nieuwe class DoubleJumpStrategy en voeg die toe aan de lijst in de Factory.
+    // Je hoeft de Character class niet open te breken.
     public class JumpStrategy: IMovementStrategy
     {
         private readonly float _jumpForce;

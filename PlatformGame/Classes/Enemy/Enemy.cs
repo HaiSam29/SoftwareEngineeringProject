@@ -7,7 +7,12 @@ using System;
 
 namespace PlatformGame.Classes.Enemy
 {
-    public class Enemy : IEnemy, IEnemyContext
+    // Dit is de centrale hub van een vijand.
+    // Blijft de “context” voor states/strategies en bewaart data
+    // maar tekent niet zelf en berekent
+    // SRP heeft duidelijke verantwoorderlijkheid
+    // DIP is sterker omdat Enemy nu afhankelijk is van IEnemyRenderer en IBoundsProvider abstracties
+    public class Enemy : IEnemy, IEnemyContext, IEnemyRenderData
     {
         // Properties
         public Vector2 Position { get; set; }
@@ -27,15 +32,24 @@ namespace PlatformGame.Classes.Enemy
         public Animation WalkAnim { get; private set; }
         public Animation AttackAnim { get; private set; }
 
-        // Strategy (geïnjecteerd)
+        // vertaalt CurrentAnimation.CurrentFrame naar een Rectangle dat de renderer kan gebruiken.
+        // Als er geen animatie is, geef je Rectangle.Empty terug
+        public Rectangle CurrentSourceRect => CurrentAnimation?.CurrentFrame ?? Rectangle.Empty;
+
+        // Strategy geïnjecteerd
         public IEnemyMovementStrategy MovementStrategy { get; private set; }
+
+        // Renderer en BoundsProvider geïnjecteerd
+        private readonly IEnemyRenderer _renderer;
+        private readonly IBoundsProvider _boundsProvider;
 
         // State Machine
         private readonly IEnemyStateFactory _stateFactory;
         private IEnemyState _currentState;
-        private Vector2 _currentCameraOffset;
+        private EnemyStateType _currentStateType;
 
-        public Rectangle Bounds => CalculateBounds();
+        // Bounds berekend via BoundsProvider
+        public Rectangle Bounds => _boundsProvider.GetBounds(Position, Size);
 
         public Enemy(Vector2 position,
                      Texture2D walkTex, Texture2D attackTex,
@@ -43,7 +57,9 @@ namespace PlatformGame.Classes.Enemy
                      float speed, float patrolDistance,
                      ITileCollisionProvider collisionProvider, int tileSize, int size,
                      IEnemyStateFactory stateFactory,
-                     IEnemyMovementStrategy movementStrategy) // NIEUW: Injectie
+                     IEnemyMovementStrategy movementStrategy,
+                     IEnemyRenderer renderer,              
+                     IBoundsProvider boundsProvider)        
         {
             Position = position;
             StartPosition = position;
@@ -61,20 +77,24 @@ namespace PlatformGame.Classes.Enemy
 
             _stateFactory = stateFactory ?? throw new ArgumentNullException(nameof(stateFactory));
             MovementStrategy = movementStrategy ?? throw new ArgumentNullException(nameof(movementStrategy));
+            _renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
+            _boundsProvider = boundsProvider ?? throw new ArgumentNullException(nameof(boundsProvider));
 
-            // Start State
             TransitionTo(EnemyStateType.Patrol);
         }
 
+        // bewaart _currentStateType, vraagt via _stateFactory.Create(stateType) de juiste state op en roept Enter(this) aan
+        // Zodat die state zijn animatie/waarden kan initialiseren.
         public void TransitionTo(EnemyStateType stateType)
         {
+            _currentStateType = stateType;
             _currentState = _stateFactory.Create(stateType);
             _currentState.Enter(this);
         }
 
         public void Attack()
         {
-            if (!(_currentState is AttackState))
+            if (_currentStateType != EnemyStateType.Attack)
             {
                 TransitionTo(EnemyStateType.Attack);
             }
@@ -85,32 +105,11 @@ namespace PlatformGame.Classes.Enemy
             _currentState.Update(gameTime, this);
         }
 
+        // Draw delegeert naar renderer
         public void Draw(SpriteBatch spriteBatch, Vector2 cameraOffset)
         {
-            _currentCameraOffset = cameraOffset;
-            _currentState.Draw(spriteBatch, this);
+            _renderer.Draw(spriteBatch, this, cameraOffset);
         }
 
-        public void DrawHelper(SpriteBatch spriteBatch)
-        {
-            if (CurrentAnimation == null || CurrentTexture == null) return;
-
-            Rectangle sourceRect = CurrentAnimation.CurrentFrame;
-            float scale = (float)Size / sourceRect.Height;
-            Vector2 origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
-            float centerX = Position.X + (Size / 2f);
-            float centerY = Position.Y + Size - (sourceRect.Height * scale / 2f);
-            Vector2 drawPos = new Vector2(centerX, centerY) + _currentCameraOffset;
-            SpriteEffects effect = Direction < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-
-            spriteBatch.Draw(CurrentTexture, drawPos, sourceRect, Color.White, 0f, origin, scale, effect, 0f);
-        }
-
-        private Rectangle CalculateBounds()
-        {
-            int sideMargin = 25;
-            int topMargin = 20;
-            return new Rectangle((int)Position.X + sideMargin, (int)Position.Y + topMargin, Size - (sideMargin * 2), Size - topMargin);
-        }
     }
 }

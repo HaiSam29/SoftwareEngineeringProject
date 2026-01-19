@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Character
 {
+    // Het past zwaartekracht toe en telt snelheid op bij de positie.
+    // SRP Doet alleen wiskunde. Weet niets van inputs of sprites.
     public class PhysicsComponent : IPhysicsComponent
     {
         private readonly float _gravity;

@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework;
 
 namespace PlatformGame.Classes.Character.States
 {
+    // Speler gaat omhoog.
+    // Zodra de snelheid > 0 omhoog verandert in < 0 omlaag, door zwaartekracht, schakelt hij over naar FallingState.
     public class JumpingState : CharacterStateBase
     {
         public override void Enter(ICharacterContext context)

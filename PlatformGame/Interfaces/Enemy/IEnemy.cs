@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Interfaces.Enemy
 {
+    // Wat de buitenwereld mag weten over een enemy.
+    // ISP Klein en gefocust. Geen onnodige methods
+    // EnemyManager praat tegen IEnemy, niet tegen concrete Enemy
     public interface IEnemy
     {
         Rectangle Bounds { get; }

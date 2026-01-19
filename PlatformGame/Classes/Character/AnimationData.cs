@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Character
 {
+    // Beheert de visuele weergave. Het weet welke texture bij welke state hoort en welk plaatje frame er getoond moet worden.
     public class AnimationData
     {
         public Texture2D Texture { get; set; }

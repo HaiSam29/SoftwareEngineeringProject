@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Character
 {
+    // Vertaalt toetsenbord input naar abstracte commando's.
+    // DIP en ISP 
+    // De rest van de game praat tegen IInputHandler.
+    // Als je later gamepad-support wilt toevoegen, maak je een GamepadInputHandler en hoef je de Character code niet aan te passen.
     public class KeyboardInputHandler : IInputHandler
     {
         private bool _wasAttackPressed;

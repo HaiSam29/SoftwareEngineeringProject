@@ -11,6 +11,8 @@ using PlatformGame.Enums;
 
 namespace PlatformGame.Interfaces.Enemy
 {
+    // Wat states en strategies mogen gebruiken. Dit is een uitgebreide interface met directe toegang tot data (Position, Speed, Textures, ...)
+    // ISP de interface is meer taakgericht en states blijven puur logica doen
     public interface IEnemyContext
     {
         // Data
@@ -36,7 +38,6 @@ namespace PlatformGame.Interfaces.Enemy
         IEnemyMovementStrategy MovementStrategy { get; }
 
         // Methods
-        void TransitionTo(EnemyStateType stateType); // NIEUW (vervangt SetState in states)
-        void DrawHelper(SpriteBatch spriteBatch);
+        void TransitionTo(EnemyStateType stateType);
     }
 }

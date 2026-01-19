@@ -10,6 +10,11 @@ using EnemyClass = PlatformGame.Classes.Enemy.Enemy;
 
 namespace PlatformGame.Classes.Enemy
 {
+    // De lopende state van een enemy.
+    // Hij zet de walk-animatie, en delegeert alle bewegingslogica naar de MovementStrategy.
+    // SRP Doet alleen state-specifiek gedrag
+    // Als je later een FlyingPatrolState wilt, maak je een nieuwe class zonder deze aan te passen
+    // Strategy Pattern: De state weet niet hoe bewegen werkt; hij roept alleen context.MovementStrategy.Move(...) aan.
     public class PatrolState : IEnemyState
     {
         public void Enter(IEnemyContext context)
@@ -23,15 +28,13 @@ namespace PlatformGame.Classes.Enemy
         {
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // DELEGEER BEWEGING NAAR STRATEGY
             context.MovementStrategy.Move(context, dt);
-
             context.CurrentAnimation.Update(dt);
         }
 
         public void Draw(SpriteBatch spriteBatch, IEnemyContext context)
         {
-            context.DrawHelper(spriteBatch);
+            // States doen niet langer rendering
         }
     }
 }

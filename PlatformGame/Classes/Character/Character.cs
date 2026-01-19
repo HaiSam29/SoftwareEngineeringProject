@@ -11,6 +11,12 @@ using PlatformGame.Classes.Character.States;
 
 namespace PlatformGame.Classes.Character
 {
+    // Centrale hub bewaart alle data maar bevat geen gedragslogica
+    // Delegeert dat naar states en Strategies
+    // SRP puur een data container en coördinator berekent zelf geen physics of collision
+    // ISP implementeert ICharacterContext(voor de states) en ICharacter (voor de game loop) zodat buitenstaanders alleen zien wat ze moeten zien.
+    // DIP Alle hulpmiddelen(Input, Physics, Collision) komen binnen via constructor 
+
     public class Character : ICharacter, ICharacterContext
     {
         // Configuratie
@@ -26,7 +32,7 @@ namespace PlatformGame.Classes.Character
         public IInputHandler Input { get; private set; }
         public ICollisionSystem Collision { get; private set; }
 
-        // AANGEPAST: Nu IReadOnlyList voor betere encapsulation (SOLID)
+        // IReadOnlyList voor betere encapsulation
         // We gebruiken een private setter zodat alleen Character de lijst kan vervangen,
         // en de buitenwereld (inclusief States) alleen kan lezen.
         public IReadOnlyList<IMovementStrategy> Strategies { get; private set; }
@@ -70,7 +76,7 @@ namespace PlatformGame.Classes.Character
             Physics = physics;
             Input = input;
             Collision = collision;
-            Strategies = strategies; // List implementeert IReadOnlyList, dus dit werkt
+            Strategies = strategies; // List implementeert IReadOnlyList
             ScreenBounds = screenBounds;
             _stateFactory = stateFactory ?? throw new ArgumentNullException(nameof(stateFactory));
 

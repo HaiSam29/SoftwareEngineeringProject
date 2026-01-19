@@ -3,6 +3,10 @@ using Microsoft.Xna.Framework;
 
 namespace PlatformGame.Classes.Enemy
 {
+    // Beheert een lijst van frames en schuift automatisch door naar het volgende frame op basis van tijd.
+    // Het houdt bij of de animatie één keer volledig is afgespeeld IsFinished.
+    // SRP Doet alleen animatie-logica. Weet niets van physics, input, of game state
+    // ISP Geen interface, maar andere code hoeft niet te weten hoe frames intern opgeslagen zijn.
     public class Animation
     {
         private readonly List<Rectangle> _frames;
@@ -10,7 +14,7 @@ namespace PlatformGame.Classes.Enemy
         private int _currentFrame;
         private float _timer;
 
-        // Om te weten of de animatie rond is (voor attacks)
+        // Om te weten of de animatie rond is voor attacks
         public bool IsFinished { get; private set; }
 
         public Rectangle CurrentFrame => _frames[_currentFrame];
@@ -21,6 +25,9 @@ namespace PlatformGame.Classes.Enemy
             _frameTime = frameTime;
         }
 
+        // Tel de tijd op
+        // Als genoeg tijd verstreken is, ga naar het volgende frame.
+        // Als je bij het laatste frame komt, spring terug naar frame 0 maar zet IsFinished = true
         public void Update(float deltaTime)
         {
             _timer += deltaTime;

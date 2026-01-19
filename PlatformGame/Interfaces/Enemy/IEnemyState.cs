@@ -9,6 +9,8 @@ using EnemyClass = PlatformGame.Classes.Enemy.Enemy;
 
 namespace PlatformGame.Interfaces.Enemy
 {
+    // Defines the lifecycle van een state 
+    // State Pattern: Gedrag is uitwisselbaar
     public interface IEnemyState
     {
         void Enter(IEnemyContext context);

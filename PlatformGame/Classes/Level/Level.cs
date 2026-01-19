@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Level
 {
+    // Eenvoudige data‑klasse: naam, int[,] MapData, en Width/Height properties
+    // Geen OCP/DIP-issues; wordt alleen gebruikt als leveldata container
     public class Level
     {
         public string Name { get; }

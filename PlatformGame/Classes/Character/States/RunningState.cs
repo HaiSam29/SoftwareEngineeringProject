@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Character.States
 {
+    // Voert movement strategies uit.
+    // Als snelheid 0 wordt geen input, ga terug naar Idle. Als speler van een randje loopt !IsGrounded, ga naar Falling.
     public class RunningState : CharacterStateBase
     {
         public override void Enter(ICharacterContext context)

@@ -10,6 +10,8 @@ using PlatformGame.Interfaces.Character;
 
 namespace PlatformGame.Classes.Character.States
 {
+    // De basisklasse voor alle states. Hier staat code die in bijna elke state nodig is zoals zwaartekracht toepassen en timers aftellen
+    // Zodat je dat niet alles opnieuw hoeft te typen.
     public abstract class CharacterStateBase : ICharacterState
     {
         public virtual void Enter(ICharacterContext context) { }
@@ -23,6 +25,8 @@ namespace PlatformGame.Classes.Character.States
             }
         }
 
+        // Deze methode Past physics toe en roept ResolveCollision aan.
+        // Dit zorgt dat physics in elke state (rennen, springen, stilstaan) consistent werken.
         public virtual void Update(ICharacterContext context, float deltaTime)
         {
             // Physics

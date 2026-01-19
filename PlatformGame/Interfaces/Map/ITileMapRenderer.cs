@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework;
 
 namespace PlatformGame.Interfaces.Map
 {
+    // Draw(SpriteBatch spriteBatch, Vector2 offset)
+    // ISP Render-only interface; netjes gescheiden van collision
     public interface ITileMapRenderer
     {
         void Draw(SpriteBatch spriteBatch, Vector2 offset);

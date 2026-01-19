@@ -9,6 +9,10 @@ using PlatformGame.Interfaces.Map;
 
 namespace PlatformGame.Classes.Map
 {
+    // Zet tileType om naar row,col in de tileset, bouwt SourceRect en bepaalt of het een collidable tile is
+    // SRP 1 verantwoordelijkheid: van tile-IDs naar Tile met juiste sprite en collision
+    // OCP Makkelijk tiles toevoegen, bestaande code blijft bestaan
+    // DIP Je gebruikt ITileFactory als abstractie, en TileMap hangt daarvan af i.p.v. van een concrete factory
     public class TileFactory: ITileFactory
     {
         private readonly int _tileSize;
@@ -65,6 +69,9 @@ namespace PlatformGame.Classes.Map
             };
         }
 
+        // Onbekende tileType → fallback naar TileType.Empty
+        // Berekent bronpositie in de tileset
+        // Vraagt IsCollidable(tileType) om de collisionflag te zetten
         public Tile CreateTile(int tileType)
         {
             if (!_tilePositions.ContainsKey(tileType))

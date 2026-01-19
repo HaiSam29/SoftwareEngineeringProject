@@ -9,6 +9,10 @@ using PlatformGame.Interfaces.Map;
 
 namespace PlatformGame.Classes.Map
 {
+    // TileMap bouwt een 2D array van Tile op basis van mapData en ITileFactory en tekent deze in Draw(...)
+    // OCP Draw en HasCollision zijn netjes gescheiden via interfaces
+    // dus code die alleen collision nodig heeft, ziet de draw-logica niet
+    // DIP PlayingState en CollisionSystem praten tegen interfaces in plaats van concrete TileMap
     public class TileMap: ITileMapRenderer, ITileCollisionProvider
     {
         private readonly Tile[,] _tiles;
@@ -19,6 +23,8 @@ namespace PlatformGame.Classes.Map
         public int Height => _tiles.GetLength(0);
         public int TileSize => _tileSize;
 
+        // leest mapData en maakt voor elke cel een Tile via ITileFactory.
+        // Dit houdt de mapping van ints naar visuals/collision centraal in één plek
         public TileMap(int[,] mapData, Texture2D tileset, int tileSize, ITileFactory factory)
         {
             _tileset = tileset;
@@ -37,6 +43,7 @@ namespace PlatformGame.Classes.Map
             }
         }
 
+        // Itereert over alle tiles, slaat Empty over, en tekent rechtstreeks op basis van x * tileSize en y * tileSize plus offset
         public void Draw(SpriteBatch spriteBatch, Vector2 offset)
         {
             for (int y = 0; y < Height; y++)

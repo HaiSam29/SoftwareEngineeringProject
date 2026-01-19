@@ -10,6 +10,7 @@ using PlatformGame.Interfaces.Map;
 
 namespace PlatformGame.Classes.Character
 {
+    // Voorkomt dat de speler door muren of vloeren zakt.
     public class CollisionSystem : ICollisionSystem
     {
         private const float GROUND_DETECTION_THRESHOLD = 5f;
@@ -25,6 +26,8 @@ namespace PlatformGame.Classes.Character
 
         public void AddCollider(Rectangle collider) => _colliders.Add(collider);
 
+        // Deze methode kijkt of er vlak onder de voeten van de speler hitbox.Bottom + een klein beetje marge een tegel of platform zit.
+        // Zo weet de JumpStrategy of je mag springen.
         public bool IsGrounded(Rectangle hitbox, out float groundY)
         {
             groundY = 0;
@@ -71,6 +74,9 @@ namespace PlatformGame.Classes.Character
             return false;
         }
 
+        // Dit gebeurt in twee stappen X en Y apart om haken aan hoekjes te voorkomen.
+        // Beweeg de speler eerst horizontaal. Raak je een muur? Stop horizontale snelheid.
+        // Beweeg de speler daarna verticaal. Raak je de grond? Stop verticale snelheid en zet speler precies op de grond.
         public Vector2 ResolveCollision(Rectangle hitbox, Vector2 velocity, float deltaTime)
         {
             if (_tileCollisionProvider == null)

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Map
 {
+    // Const ints voor tiles 
+    // SRP 1 taak: symbolische namen voor tile-ID’s
+    // OCP Breidt je uit door nieuwe consts toe te voegen
     public static class TileType
     {
         public const int Empty = 0;

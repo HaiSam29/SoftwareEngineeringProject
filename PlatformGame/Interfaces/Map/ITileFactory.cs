@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Interfaces.Map
 {
+    // SRP logica in één plek, en geeft TileMap een nette abstractie
     public interface ITileFactory
     {
         Tile CreateTile(int tileType);

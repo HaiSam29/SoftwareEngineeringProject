@@ -9,6 +9,8 @@ using PlatformGame.Interfaces.Character;
 
 namespace PlatformGame.Classes.Character.States
 {
+    // Speler valt omlaag.
+    // De belangrijkste check hier is IsGrounded. Zodra de speler de grond raakt, schakelt hij over naar LandingState.
     public class FallingState : CharacterStateBase
     {
         public override void Enter(ICharacterContext context)
@@ -19,8 +21,8 @@ namespace PlatformGame.Classes.Character.States
         public override void HandleInput(ICharacterContext context)
         {
             // Air Control: Voer strategies uit
-            // Omdat we vallen, zal JumpStrategy.CanExecute() false teruggeven (want niet grounded)
-            // Maar GroundedMovementStrategy (of een aparte AirStrategy) kan true geven voor links/rechts
+            // Omdat we vallen, zal JumpStrategy.CanExecute() false teruggeven want niet grounded
+            // Maar GroundedMovementStrategy of een aparte AirStrategy kan true geven voor links/rechts
             foreach (var strat in context.Strategies)
             {
                 if (strat.CanExecute(context))

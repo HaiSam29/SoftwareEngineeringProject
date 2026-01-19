@@ -10,12 +10,12 @@ namespace PlatformGame.Classes.Character.States
 {
     public class CharacterStateFactory : IStateFactory
     {
+        // Een simpele soort van bib van alle mogelijke states.
+        // Als de code zegt TransitionTo( bv. State.Running), zoekt deze factory de juiste class erbij.
         private readonly Dictionary<CharacterState, ICharacterState> _states;
 
         public CharacterStateFactory()
         {
-            // Let op: dit werkt alleen veilig als je states geen “eigen” state bewaren.
-            // (In jouw code is dat zo: timers zitten op Character, niet op de state.)
             _states = new Dictionary<CharacterState, ICharacterState>
             {
                 { CharacterState.Idle, new IdleState() },

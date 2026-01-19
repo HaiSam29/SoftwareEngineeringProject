@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Game
 {
+    // Tekent een Game Over‑scherm met overlay
+    // SRP 1 taak: de Game Over UI tonen en 1 input‑actie
+    // DIP Krijgt IGameConfig en Game1 via DI, gebruikt ChangeState om terug te gaan naar menu
     public class GameOverState : IGameState
     {
         private Game1 _game;
@@ -46,12 +49,14 @@ namespace PlatformGame.Classes.Game
 
             int panelWidth = 600;
             int panelHeight = 300;
+            // Berekening van panelRect op basis van _config.ScreenWidth/Height centreert de panel
             Rectangle panelRect = new Rectangle(
                 (_config.ScreenWidth / 2) - (panelWidth / 2),
                 (_config.ScreenHeight / 2) - (panelHeight / 2),
                 panelWidth,
                 panelHeight
             );
+            // _darkOverlay is 1×1 texture die als semi‑transparant paneel over het scherm wordt geschaald
             spriteBatch.Draw(_darkOverlay, panelRect, Color.White);
 
             string text = "GAME OVER";

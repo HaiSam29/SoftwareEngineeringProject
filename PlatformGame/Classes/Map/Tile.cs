@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework;
 
 namespace PlatformGame.Classes.Map
 {
+    // Data-object voor één tile
+    // SRP Data + status, geen spel-logica
     public class Tile
     {
         public int Type { get; set; }

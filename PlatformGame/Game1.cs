@@ -15,6 +15,13 @@ using System.Collections.Generic;
 
 namespace PlatformGame
 {
+    // MonoGame entrypoint
+    // Houdt _currentState bij en delegeert Update/Draw naar de actieve state
+    // Maakt één GameConfig aan en past resolutie toe
+    // Regelt global input
+    // SRP 1 verantwoordelijkheid: orkestreren 
+    // DIP Game1 kent concrete states, maar gebruikt verder alleen IGameState.
+    // OCP Nieuwe states kun je toevoegen zonder Game1 te wijzigen
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
@@ -23,10 +30,10 @@ namespace PlatformGame
         // De huidige status van het spel (Menu, Spelen, Game Over)
         private IGameState _currentState;
 
-        // De configuratie (SOLID: Dependency Injection Container)
+        // De configuratie Dependency Injection Container
         private IGameConfig _gameConfig;
 
-        // Om te onthouden welke toetsen vorige frame waren ingedrukt (voor F11 toggle)
+        // Om te onthouden welke toetsen vorige frame waren ingedrukt voor F11 toggle
         private KeyboardState _previousKeyboardState;
 
         public Game1()
@@ -35,10 +42,10 @@ namespace PlatformGame
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            // 1. Initialiseer de Config (Dit is de enige plek waar 'new GameConfig' mag staan)
+            // Initialiseer de Config 
             _gameConfig = new GameConfig();
 
-            // 2. Pas schermgrootte aan op basis van de config
+            // Pas schermgrootte aan op basis van de config
             _graphics.PreferredBackBufferWidth = _gameConfig.ScreenWidth;
             _graphics.PreferredBackBufferHeight = _gameConfig.ScreenHeight;
             _graphics.ApplyChanges();
@@ -53,7 +60,7 @@ namespace PlatformGame
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // We beginnen in het Menu en geven de Config mee!
+            // We beginnen in het Menu en geven de Config mee
             _currentState = new MenuState(this, _gameConfig);
         }
 
@@ -68,7 +75,7 @@ namespace PlatformGame
             // Haal de huidige status van het toetsenbord op
             KeyboardState currentKeyboardState = Keyboard.GetState();
 
-            // 1. ALTIJD AFSLUITEN BIJ ESCAPE (ONGEACHT DE STATUS)
+            // ALTIJD AFSLUITEN BIJ ESCAPE (ONGEACHT DE STATUS)
             if (currentKeyboardState.IsKeyDown(Keys.Escape))
             {
                 Exit();
@@ -94,7 +101,7 @@ namespace PlatformGame
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // Let op: SamplerState.PointClamp zorgt voor scherpe pixel art
+            // SamplerState.PointClamp zorgt voor scherpe pixel art
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
             // Delegeer het tekenen naar de huidige state

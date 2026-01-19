@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Enums
 {
+    // Categorieën van enemies
+    // De factory gebruikt dit om te beslissen welke textures/stats te gebruiken
     public enum EnemyType
     {
         Normal,

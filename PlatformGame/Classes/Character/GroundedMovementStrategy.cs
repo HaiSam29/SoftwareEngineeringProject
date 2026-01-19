@@ -9,12 +9,15 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Character
 {
+    // Dit zijn beweging.
+    // Leest input (-1 of 1) en zet horizontale snelheid.
+    // OCP Wil je iets toevoegen. Maak een nieuwe class DoubleJumpStrategy en voeg die toe aan de lijst in de Factory.
+    // Je hoeft de Character class niet open te breken.
     public class GroundedMovementStrategy: IMovementStrategy
     {
         public bool CanExecute(ICharacterContext context)
         {
-            // Deze strategie is altijd actief zolang er input is (of altijd, afhankelijk van je game)
-            // Je zou hier ook "IsGrounded" kunnen checken als je air-control wil verbieden
+            // Deze strategie is altijd actief zolang er input is of altijd, afhankelijk van je game
             return true;
         }
 

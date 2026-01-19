@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Character.States
 {
+    // Een korte animatie na een val.
+    // Heeft een timer LandingTimer.
+    // Als die op 0 staat, mag de speler weer bewegen naar Idle of Running.
     public class LandingState : CharacterStateBase
     {
         public override void Enter(ICharacterContext context)

@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Level
 {
+    // Laadt een Level op basis van een naam
+    // SRP 1 verantwoordelijkheid: leveldata aanleveren
+    // OCP Bestaande code hoeft niet aangepast te worden
     public class HardcodedLevelLoader: ILevelLoader
     {
         private readonly Dictionary<string, Func<Level>> _levelFactories;

@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Game
 {
+    // Tekent Victory‑scherm en stuurt bij Enter terug naar MenuState
+    // SRP Alleen Victory UI + input
+    // DIP Zelfde patroon als GameOverState: Game1 + IGameConfig via constructor
     public class VictoryState : IGameState
     {
         private Game1 _game;
@@ -18,7 +21,7 @@ namespace PlatformGame.Classes.Game
         private Texture2D _backgroundTexture;
         private Texture2D _pixelTexture;
 
-        // DE OPLOSSING: Voeg 'IGameConfig config' toe aan de constructor
+        // Voeg IGameConfig config toe aan de constructor
         public VictoryState(Game1 game, IGameConfig config)
         {
             _game = game;
@@ -42,7 +45,7 @@ namespace PlatformGame.Classes.Game
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            // Gebruik _config in plaats van GameConfig.static
+            // Gebruik _config 
             int screenW = _config.ScreenWidth;
             int screenH = _config.ScreenHeight;
             Vector2 center = new Vector2(screenW / 2, screenH / 2);
@@ -65,6 +68,7 @@ namespace PlatformGame.Classes.Game
                 panelRect.Width + (border * 2),
                 panelRect.Height + (border * 2)
             );
+            // _pixelTexture als 1×1 texture om borderRect en panelRect te tekenen
             spriteBatch.Draw(_pixelTexture, borderRect, Color.Gold);
             spriteBatch.Draw(_pixelTexture, panelRect, Color.Black * 0.8f);
 

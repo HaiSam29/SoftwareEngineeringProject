@@ -11,6 +11,9 @@ namespace PlatformGame.Classes.Character.States
 {
     public class IdleState: CharacterStateBase
     {
+        // Zet snelheid op 0.
+        // Checkt continu: "Wordt er op een pijltoets gedrukt?" -> Ga naar Running.
+        // "Wordt er gesprongen?" -> Ga naar Jumping.
         public override void Enter(ICharacterContext context)
         {
             context.CurrentStateEnum = CharacterState.Idle;

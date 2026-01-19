@@ -15,13 +15,16 @@ using LevelLoader = PlatformGame.Classes.Level.HardcodedLevelLoader;
 
 namespace PlatformGame.Classes.Level
 {
+    // Verantwoordelijk voor: Achtergrond maken, Tileset inladen,TileFactory en TileMap maken, Level + renderer + collision provider bundelen
+    // SRP Levelscene opbouwen is hier de verantwoordelijkheid
+    // DIP LevelFactory krijgt IGameConfig via DI
     public class LevelFactory
     {
         private readonly ContentManager _content;
         private readonly ILevelLoader _levelLoader;
-        private readonly IGameConfig _config; // 2. Opslag voor de config
+        private readonly IGameConfig _config; // Opslag voor de config
 
-        // 3. Constructor accepteert nu IGameConfig (Dependency Injection)
+        // Constructor accepteert IGameConfig (Dependency Injection)
         public LevelFactory(ContentManager content, IGameConfig config)
         {
             _content = content;
@@ -33,28 +36,24 @@ namespace PlatformGame.Classes.Level
         {
             var bgTexture = _content.Load<Texture2D>("background");
 
-            // 4. Gebruik nu _config i.p.v. GameConfig.static
             return new Background(bgTexture, _config.ScreenWidth, _config.ScreenHeight);
         }
 
         public (LevelData level, ITileMapRenderer renderer, ITileCollisionProvider collision) CreateLevel(string levelName)
         {
-            // 1. Data ophalen
+            // Data ophalen
             LevelData levelData = _levelLoader.LoadLevel(levelName);
 
-            // 2. Texture laden
+            // Texture laden
             var tileset = _content.Load<Texture2D>("tilemap");
 
-            // 3. Instellingen
+            // Instellingen
             int sourceTileSize = 18;
             int spacing = 1;
 
-            // 5. Optioneel: Je zou destTileSize ook uit de config kunnen halen als je dat wilt
-            // Bijv: int destTileSize = _config.TileSize; 
-            // Voor nu laten we het op 60 staan zoals in je voorbeeld:
             int destTileSize = 60;
 
-            // 4. Maak de factory en map aan
+            // Maak de factory en map aan
             ITileFactory tileFactory = new TileFactory(sourceTileSize, spacing);
             var tileMap = new TileMap(levelData.MapData, tileset, destTileSize, tileFactory);
 
