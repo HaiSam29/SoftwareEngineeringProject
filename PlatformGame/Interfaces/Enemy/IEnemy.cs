@@ -13,5 +13,6 @@ namespace PlatformGame.Interfaces.Enemy
         Rectangle Bounds { get; }
         void Update(GameTime gameTime); 
         void Draw(SpriteBatch spriteBatch, Vector2 cameraOffset);
+        void Attack();
     }
 }

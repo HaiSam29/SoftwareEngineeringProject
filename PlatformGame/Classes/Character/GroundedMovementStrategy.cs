@@ -11,12 +11,19 @@ namespace PlatformGame.Classes.Character
 {
     public class GroundedMovementStrategy: IMovementStrategy
     {
-        public void Execute(IPhysicsComponent physics, IInputHandler input,
-                           bool isGrounded, float moveSpeed)
+        public bool CanExecute(ICharacterContext context)
         {
-            
-            float dirX = input.GetMoveDirectionX();
-            physics.Velocity = new Vector2(dirX * moveSpeed, physics.Velocity.Y);
+            // Deze strategie is altijd actief zolang er input is (of altijd, afhankelijk van je game)
+            // Je zou hier ook "IsGrounded" kunnen checken als je air-control wil verbieden
+            return true;
+        }
+
+        public void Execute(ICharacterContext context)
+        {
+            float dirX = context.Input.GetMoveDirectionX();
+
+            // Pas snelheid toe
+            context.Physics.Velocity = new Vector2(dirX * context.MoveSpeed, context.Physics.Velocity.Y);
         }
     }
 }

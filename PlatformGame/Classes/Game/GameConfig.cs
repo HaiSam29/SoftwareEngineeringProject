@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PlatformGame.Interfaces.Game;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,23 +7,19 @@ using System.Threading.Tasks;
 
 namespace PlatformGame.Classes.Game
 {
-    public static class GameConfig
+    public class GameConfig : IGameConfig
     {
-        // Screen
-        public const int screenWidth = 1920;
-        public const int screenHeight = 1080;
+        public int ScreenWidth => 1920;
+        public int ScreenHeight => 1080;
 
-        // World
-        public const int groundY = 785;
-        public const int groundHeight = 130;
+        public int GroundY => 785;
+        public int GroundHeight => 130;
 
-        // Character
-        public const int characterFrameSize = 48;
-        public const float characterScale = 1.2f;
-        public const float characterMoveSpeed = 250f;
+        public int CharacterFrameSize => 48;
+        public float CharacterScale => 1.2f;
+        public float CharacterMoveSpeed => 250f;
 
-        // Physics
-        public const float gravity = 800f;
-        public const float jumpForce = 500f;
+        public float Gravity => 800f;
+        public float JumpForce => 550f;
     }
 }

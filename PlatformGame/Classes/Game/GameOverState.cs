@@ -13,56 +13,54 @@ namespace PlatformGame.Classes.Game
     public class GameOverState : IGameState
     {
         private Game1 _game;
+        private IGameConfig _config; // Config veld
         private SpriteFont _font;
         private Texture2D _backgroundTexture;
         private Texture2D _darkOverlay;
 
-        public GameOverState(Game1 game)
+        // Constructor update
+        public GameOverState(Game1 game, IGameConfig config)
         {
             _game = game;
+            _config = config; // Opslaan
             _font = game.Content.Load<SpriteFont>("GameFont");
             _backgroundTexture = game.Content.Load<Texture2D>("background");
 
-            // Maak een zwarte semi-transparante pixel
             _darkOverlay = new Texture2D(_game.GraphicsDevice, 1, 1);
-            _darkOverlay.SetData(new[] { Color.Black * 0.6f }); // 60% zichtbaar zwart
+            _darkOverlay.SetData(new[] { Color.Black * 0.6f });
         }
 
         public void Update(GameTime gameTime)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Enter))
             {
-                _game.ChangeState(new MenuState(_game));
+                // Geef config door aan Menu
+                _game.ChangeState(new MenuState(_game, _config));
             }
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            // 1. Teken achtergrond met een RODE tint 
-            spriteBatch.Draw(_backgroundTexture, new Rectangle(0, 0, GameConfig.screenWidth, GameConfig.screenHeight), Color.Red);
+            // Gebruik _config.ScreenWidth/Height
+            spriteBatch.Draw(_backgroundTexture, new Rectangle(0, 0, _config.ScreenWidth, _config.ScreenHeight), Color.Red);
 
-            // 2. Teken een zwart paneel in het midden 
             int panelWidth = 600;
             int panelHeight = 300;
             Rectangle panelRect = new Rectangle(
-                (GameConfig.screenWidth / 2) - (panelWidth / 2),
-                (GameConfig.screenHeight / 2) - (panelHeight / 2),
+                (_config.ScreenWidth / 2) - (panelWidth / 2),
+                (_config.ScreenHeight / 2) - (panelHeight / 2),
                 panelWidth,
                 panelHeight
             );
             spriteBatch.Draw(_darkOverlay, panelRect, Color.White);
 
-            // 3. Teken "GAME OVER"
             string text = "GAME OVER";
             Vector2 textSize = _font.MeasureString(text);
-            Vector2 center = new Vector2(GameConfig.screenWidth / 2, GameConfig.screenHeight / 2);
+            Vector2 center = new Vector2(_config.ScreenWidth / 2, _config.ScreenHeight / 2);
 
-            // Schaduw
             spriteBatch.DrawString(_font, text, center - (textSize / 2) + new Vector2(2, 2) - new Vector2(0, 40), Color.Black);
-            // Tekst
             spriteBatch.DrawString(_font, text, center - (textSize / 2) - new Vector2(0, 40), Color.White);
 
-            // 4. Teken instructie
             string subText = "Press ENTER to Main Menu";
             Vector2 subSize = _font.MeasureString(subText);
 

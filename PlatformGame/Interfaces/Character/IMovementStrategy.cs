@@ -8,6 +8,10 @@ namespace PlatformGame.Interfaces.Character
 {
     public interface IMovementStrategy
     {
-        void Execute(IPhysicsComponent physics, IInputHandler input, bool isGrounded, float moveSpeed);
+        // Mag deze strategy nu uitgevoerd worden? (bv. "sta ik op de grond?")
+        bool CanExecute(ICharacterContext context);
+
+        // Voer de beweging uit
+        void Execute(ICharacterContext context);
     }
 }

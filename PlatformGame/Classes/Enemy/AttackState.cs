@@ -7,35 +7,35 @@ using System.Text;
 using System.Threading.Tasks;
 using PlatformGame.Interfaces.Enemy;
 using EnemyClass = PlatformGame.Classes.Enemy.Enemy;
+using PlatformGame.Enums;
 
 namespace PlatformGame.Classes.Enemy
 {
     public class AttackState : IEnemyState
     {
-        public void Enter(EnemyClass enemy)
+        public void Enter(IEnemyContext context)
         {
-            enemy.CurrentAnimation = enemy.AttackAnim;
-            enemy.CurrentTexture = enemy.AttackTex;
-            enemy.CurrentAnimation.Reset();
+            context.CurrentAnimation = context.AttackAnim;
+            context.CurrentTexture = context.AttackTex;
+            context.CurrentAnimation.Reset();
         }
 
-        public void Update(GameTime gameTime, EnemyClass enemy)
+        public void Update(GameTime gameTime, IEnemyContext context)
         {
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            context.CurrentAnimation.Update(dt);
 
-            // Tijdens attack bewegen we niet alleen animatie updaten
-            enemy.CurrentAnimation.Update(dt);
-
-            // Als klaar -> terug naar Patrol
-            if (enemy.CurrentAnimation.IsFinished)
+            if (context.CurrentAnimation.IsFinished)
             {
-                enemy.SetState(new PatrolState());
+                // OUD: context.SetState(new PatrolState());
+                // NIEUW:
+                context.TransitionTo(EnemyStateType.Patrol);
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, EnemyClass enemy)
+        public void Draw(SpriteBatch spriteBatch, IEnemyContext context)
         {
-            enemy.DrawHelper(spriteBatch);
+            context.DrawHelper(spriteBatch);
         }
     }
 }

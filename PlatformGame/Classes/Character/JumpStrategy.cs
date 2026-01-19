@@ -19,17 +19,22 @@ namespace PlatformGame.Classes.Character
             _jumpForce = jumpForce;
         }
 
-        public void Execute(IPhysicsComponent physics, IInputHandler input, bool isGrounded, float moveSpeed)
+        public bool CanExecute(ICharacterContext context)
         {
-            bool isJumpPressed = input.IsJumpPressed();
+            // Jump mag alleen als we op de grond staan
+            // We checken dit direct via de context
+            return context.Collision.IsGrounded(context.GetHitbox(), out _);
+        }
 
-            // Jump alleen als:
-            // - Op de grond staat
-            // - Jump wordt ingedrukt
-            // - Jump was niet al ingedrukt (voorkomt infinite jump)
-            if (isGrounded && isJumpPressed && !_wasJumpPressed)
+        public void Execute(ICharacterContext context)
+        {
+            bool isJumpPressed = context.Input.IsJumpPressed();
+
+            // Omdat CanExecute al true teruggaf, weten we dat we grounded zijn.
+            // We checken alleen nog de input.
+            if (isJumpPressed && !_wasJumpPressed)
             {
-                physics.Velocity = new Vector2(physics.Velocity.X, -_jumpForce);
+                context.Physics.Velocity = new Vector2(context.Physics.Velocity.X, -_jumpForce);
             }
 
             _wasJumpPressed = isJumpPressed;

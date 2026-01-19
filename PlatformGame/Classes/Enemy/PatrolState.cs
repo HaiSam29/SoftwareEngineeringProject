@@ -12,29 +12,26 @@ namespace PlatformGame.Classes.Enemy
 {
     public class PatrolState : IEnemyState
     {
-        public void Enter(EnemyClass enemy)
+        public void Enter(IEnemyContext context)
         {
-            enemy.CurrentAnimation = enemy.WalkAnim;
-            enemy.CurrentTexture = enemy.WalkTex;
-            enemy.CurrentAnimation.Reset();
+            context.CurrentAnimation = context.WalkAnim;
+            context.CurrentTexture = context.WalkTex;
+            context.CurrentAnimation.Reset();
         }
 
-        public void Update(GameTime gameTime, EnemyClass enemy)
+        public void Update(GameTime gameTime, IEnemyContext context)
         {
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (enemy.ShouldTurnAround())
-            {
-                enemy.Direction *= -1;
-            }
+            // DELEGEER BEWEGING NAAR STRATEGY
+            context.MovementStrategy.Move(context, dt);
 
-            enemy.Position.X += enemy.Speed * enemy.Direction * dt;
-            enemy.CurrentAnimation.Update(dt);
+            context.CurrentAnimation.Update(dt);
         }
 
-        public void Draw(SpriteBatch spriteBatch, EnemyClass enemy)
+        public void Draw(SpriteBatch spriteBatch, IEnemyContext context)
         {
-            enemy.DrawHelper(spriteBatch);
+            context.DrawHelper(spriteBatch);
         }
     }
 }

@@ -11,8 +11,8 @@ namespace PlatformGame.Interfaces.Enemy
 {
     public interface IEnemyState
     {
-        void Enter(EnemyClass enemy);
-        void Update(GameTime gameTime, EnemyClass enemy);
-        void Draw(SpriteBatch spriteBatch, EnemyClass enemy);
+        void Enter(IEnemyContext context);
+        void Update(GameTime gameTime, IEnemyContext context);
+        void Draw(SpriteBatch spriteBatch, IEnemyContext context);
     }
 }

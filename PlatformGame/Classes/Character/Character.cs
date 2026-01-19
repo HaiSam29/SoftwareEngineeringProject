@@ -6,204 +6,127 @@ using Microsoft.Xna.Framework;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PlatformGame.Interfaces.Character.States;
+using PlatformGame.Classes.Character.States;
 
 namespace PlatformGame.Classes.Character
 {
-    public class Character : ICharacter
+    public class Character : ICharacter, ICharacterContext
     {
-        private Vector2 _position;
-        private readonly IPhysicsComponent _physics;
-        private readonly IInputHandler _input;
-        private readonly ICollisionSystem _collision;
-        private readonly List<IMovementStrategy> _strategies;
-        private readonly int _frameWidth;
-        private readonly int _frameHeight;
-        private readonly float _moveSpeed;
-        private const float movementThreshold = 0.1f;
-        private const float facingThreshold = 0.1f;
-        private const float landingDuration = 0.2f;
-        private float _landingTimer;
-        private bool _wasInAir;
-        private const float attackDuration = 0.4f;
-        private float _attackTimer;
-        private readonly Rectangle _screenBounds;
+        // Configuratie
+        public const float DefaultMovementThreshold = 0.1f;
+        public const float DefaultLandingDuration = 0.2f;
+        public const float DefaultAttackDuration = 0.4f;
+        public const float DefaultInvulnerabilityDuration = 1.5f;
+        public const float DefaultKnockbackForce = -200f;
+
+        // ICharacterContext Properties
+        public Vector2 Position { get; set; }
+        public IPhysicsComponent Physics { get; private set; }
+        public IInputHandler Input { get; private set; }
+        public ICollisionSystem Collision { get; private set; }
+
+        // AANGEPAST: Nu IReadOnlyList voor betere encapsulation (SOLID)
+        // We gebruiken een private setter zodat alleen Character de lijst kan vervangen,
+        // en de buitenwereld (inclusief States) alleen kan lezen.
+        public IReadOnlyList<IMovementStrategy> Strategies { get; private set; }
+
+        public Rectangle ScreenBounds { get; private set; }
+        public int FrameWidth { get; private set; }
+        public int FrameHeight { get; private set; }
+        public float MoveSpeed { get; private set; }
+
+        // Timers 
+        public float LandingTimer { get; set; }
+        public float AttackTimer { get; set; }
+        public float InvulnerabilityTimer { get; set; }
+
+        // State Machine
+        private readonly IStateFactory _stateFactory;
+        private ICharacterState _currentState;
+
+        public CharacterState CurrentStateEnum { get; set; }
+        public bool FacingLeft { get; set; }
         public int Health { get; private set; } = 3;
-        private float _invulnerabilityTimer = 0f;
-        private const float InvulnerabilityDuration = 1.5f;
-        public bool IsInvulnerable => _invulnerabilityTimer > 0;
 
-        public Vector2 Position => _position;
-        public CharacterState CurrentState { get; private set; } = CharacterState.Idle;
-        public bool FacingLeft { get; private set; }
+        // Derived properties
+        public bool IsInvulnerable => InvulnerabilityTimer > 0;
+        CharacterState ICharacter.CurrentState => CurrentStateEnum;
+        Vector2 ICharacter.Position => Position;
 
-        public Character(Vector2 startPosition, IPhysicsComponent physics, IInputHandler input,
-                ICollisionSystem collision, List<IMovementStrategy> strategies, Rectangle screenBounds,
-                int frameWidth = 48, int frameHeight = 48, float moveSpeed = 150f)
+        public Character(
+            Vector2 startPosition,
+            IPhysicsComponent physics,
+            IInputHandler input,
+            ICollisionSystem collision,
+            List<IMovementStrategy> strategies, // Constructor accepteert nog wel een List
+            Rectangle screenBounds,
+            IStateFactory stateFactory,
+            int frameWidth = 48,
+            int frameHeight = 48,
+            float moveSpeed = 150f)
         {
-            _position = startPosition;
-            _physics = physics;
-            _input = input;
-            _collision = collision;
-            _strategies = strategies;
-            _frameWidth = frameWidth;   
-            _frameHeight = frameHeight; 
-            _moveSpeed = moveSpeed;
-            _screenBounds = screenBounds;
+            Position = startPosition;
+            Physics = physics;
+            Input = input;
+            Collision = collision;
+            Strategies = strategies; // List implementeert IReadOnlyList, dus dit werkt
+            ScreenBounds = screenBounds;
+            _stateFactory = stateFactory ?? throw new ArgumentNullException(nameof(stateFactory));
+
+            FrameWidth = frameWidth;
+            FrameHeight = frameHeight;
+            MoveSpeed = moveSpeed;
+
+            TransitionTo(CharacterState.Idle);
+        }
+
+        public void TransitionTo(CharacterState state)
+        {
+            _currentState = _stateFactory.Create(state);
+            _currentState.Enter(this);
         }
 
         public void Update(float deltaTime)
         {
-            // 1. Update Invulnerability Timer 
-            if (_invulnerabilityTimer > 0)
-            {
-                _invulnerabilityTimer -= deltaTime;
-            }
-
-            bool wasGrounded = _collision.IsGrounded(GetHitbox(), out float groundY);
-
-            // Check attack input
-            if (_input.IsAttackPressed() && _attackTimer <= 0 && wasGrounded)
-            {
-                _attackTimer = attackDuration;
-            }
-
-            // Movement (alleen als niet aan het attacken en crouchen)
-            if (_attackTimer <= 0 && !_input.IsCrouchPressed())
-            {
-                foreach (var strategy in _strategies)
-                    strategy.Execute(_physics, _input, wasGrounded, _moveSpeed);
-            }
-            else
-            {
-                _physics.Velocity = new Vector2(0, _physics.Velocity.Y);
-            }
-
-            _physics.ApplyGravity(deltaTime);
-
-            _physics.Velocity = _collision.ResolveCollision(GetHitbox(), _physics.Velocity, deltaTime);
-
-            _physics.ApplyVelocity(ref _position, deltaTime);
+            _currentState.HandleInput(this);
+            _currentState.Update(this, deltaTime);
 
             ClampToScreenBounds();
-
-            // Check ground AFTER movement
-            bool isGroundedNow = _collision.IsGrounded(GetHitbox(), out float newGroundY);
-
-            if (isGroundedNow && _physics.Velocity.Y >= 0)
-            {
-                float targetY = newGroundY - _frameHeight;
-
-                // Als we dicht genoeg bij de grond zijn, snap exact
-                if (Math.Abs(_position.Y - targetY) < 20f)
-                {
-                    _position.Y = targetY;
-                    _physics.Velocity = new Vector2(_physics.Velocity.X, 0);
-
-                    if (_wasInAir)
-                    {
-                        _landingTimer = landingDuration;
-                    }
-                }
-            }
-
-            _wasInAir = !isGroundedNow;
-
-            // Update timers
-            if (_landingTimer > 0)
-                _landingTimer -= deltaTime;
-
-            if (_attackTimer > 0)
-                _attackTimer -= deltaTime;
-
-            UpdateState(isGroundedNow);
             UpdateFacing();
         }
 
-        public bool TakeDamage()
+        public void UpdateTimers(float deltaTime)
         {
-            // Als we onsterfelijk zijn, gebeurt er niets
-            if (IsInvulnerable) return false;
-
-            Health--;
-            _invulnerabilityTimer = InvulnerabilityDuration; // Reset de timer
-
-            // Optioneel: Kleine 'knockback' omhoog zodat je voelt dat je geraakt bent
-            _physics.Velocity = new Vector2(_physics.Velocity.X, -200f);
-
-            return true; // We zijn geraakt
+            if (InvulnerabilityTimer > 0) InvulnerabilityTimer -= deltaTime;
+            if (LandingTimer > 0) LandingTimer -= deltaTime;
+            if (AttackTimer > 0) AttackTimer -= deltaTime;
         }
 
         private void ClampToScreenBounds()
         {
-            // Clamp X (links en rechts)
-            _position.X = MathHelper.Clamp(
-                _position.X,
-                _screenBounds.Left,                      // Linker rand
-                _screenBounds.Right - _frameWidth        // Rechter rand minus character breedte
+            Position = new Vector2(
+                MathHelper.Clamp(Position.X, ScreenBounds.Left, ScreenBounds.Right - FrameWidth),
+                Position.Y
             );
-
-            // Optioneel: Clamp Y (boven en onder)
-            // _position.Y = MathHelper.Clamp(
-            //     _position.Y,
-            //     _screenBounds.Top,
-            //     _screenBounds.Bottom - _frameHeight
-            // );
-        }
-
-        private void UpdateState(bool isGrounded)
-        {
-            // Attack heeft hoogste prioriteit
-            if (_attackTimer > 0)
-            {
-                CurrentState = CharacterState.Attacking;
-                return;
-            }
-
-            // Crouching
-            if (_input.IsCrouchPressed() && isGrounded)
-            {
-                CurrentState = CharacterState.Crouching;
-                return;
-            }
-
-            // In de lucht = Jumping
-            if (!isGrounded)
-            {
-                if (_physics.Velocity.Y < 0)
-                {
-                    CurrentState = CharacterState.Jumping;  // Beweegt omhoog
-                }
-                else
-                {
-                    CurrentState = CharacterState.Falling;  // Beweegt omlaag
-                }
-                return;
-            }
-
-            // Net geland = Landing
-            if (_landingTimer > 0)
-            {
-                CurrentState = CharacterState.Landing;
-                return;
-            }
-
-            // Op de grond: Idle of Running
-            CurrentState = Math.Abs(_physics.Velocity.X) > movementThreshold
-                ? CharacterState.Running
-                : CharacterState.Idle;
         }
 
         private void UpdateFacing()
         {
-            const float threshold = 0.1f;
-
-            if (_physics.Velocity.X < -threshold)
-                FacingLeft = true;
-            else if (_physics.Velocity.X > threshold)
-                FacingLeft = false;
+            if (Physics.Velocity.X < -DefaultMovementThreshold) FacingLeft = true;
+            else if (Physics.Velocity.X > DefaultMovementThreshold) FacingLeft = false;
         }
 
-        public Rectangle GetHitbox() => new((int)_position.X, (int)_position.Y, _frameWidth, _frameHeight);
-    }
+        public bool TakeDamage()
+        {
+            if (IsInvulnerable) return false;
+            Health--;
+            InvulnerabilityTimer = DefaultInvulnerabilityDuration;
+            Physics.Velocity = new Vector2(Physics.Velocity.X, DefaultKnockbackForce);
+            return true;
+        }
 
+        public Rectangle GetHitbox() => new((int)Position.X, (int)Position.Y, FrameWidth, FrameHeight);
+    }
 }
+

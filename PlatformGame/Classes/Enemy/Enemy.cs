@@ -2,32 +2,38 @@
 using Microsoft.Xna.Framework;
 using PlatformGame.Interfaces.Enemy;
 using PlatformGame.Interfaces.Map;
+using PlatformGame.Enums;
+using System;
 
 namespace PlatformGame.Classes.Enemy
 {
-    public class Enemy : IEnemy
+    public class Enemy : IEnemy, IEnemyContext
     {
-        public Vector2 Position;
-        public Vector2 StartPosition;
-        public int Direction = 1;
-        public float Speed;
-        public float PatrolDistance;
-        public int Size;
-        public ITileCollisionProvider CollisionProvider;
-        public int TileSize;
+        // Properties
+        public Vector2 Position { get; set; }
+        public Vector2 StartPosition { get; private set; }
+        public int Direction { get; set; } = 1;
+        public float Speed { get; private set; }
+        public float PatrolDistance { get; private set; }
+        public int Size { get; private set; }
 
-        // Assets voor beide staten
-        public Texture2D WalkTex;
-        public Texture2D AttackTex;
-        public Animation WalkAnim;
-        public Animation AttackAnim;
+        public ITileCollisionProvider CollisionProvider { get; private set; }
+        public int TileSize { get; private set; }
 
-        // Huidige weergave
-        public Texture2D CurrentTexture;
-        public Animation CurrentAnimation;
+        public Texture2D CurrentTexture { get; set; }
+        public Animation CurrentAnimation { get; set; }
+        public Texture2D WalkTex { get; private set; }
+        public Texture2D AttackTex { get; private set; }
+        public Animation WalkAnim { get; private set; }
+        public Animation AttackAnim { get; private set; }
 
-        // De State Machine
+        // Strategy (geïnjecteerd)
+        public IEnemyMovementStrategy MovementStrategy { get; private set; }
+
+        // State Machine
+        private readonly IEnemyStateFactory _stateFactory;
         private IEnemyState _currentState;
+        private Vector2 _currentCameraOffset;
 
         public Rectangle Bounds => CalculateBounds();
 
@@ -35,7 +41,9 @@ namespace PlatformGame.Classes.Enemy
                      Texture2D walkTex, Texture2D attackTex,
                      Animation walkAnim, Animation attackAnim,
                      float speed, float patrolDistance,
-                     ITileCollisionProvider collisionProvider, int tileSize, int size)
+                     ITileCollisionProvider collisionProvider, int tileSize, int size,
+                     IEnemyStateFactory stateFactory,
+                     IEnemyMovementStrategy movementStrategy) // NIEUW: Injectie
         {
             Position = position;
             StartPosition = position;
@@ -51,23 +59,24 @@ namespace PlatformGame.Classes.Enemy
             TileSize = tileSize;
             Size = size;
 
-            // Begin met Patrol
-            SetState(new PatrolState());
+            _stateFactory = stateFactory ?? throw new ArgumentNullException(nameof(stateFactory));
+            MovementStrategy = movementStrategy ?? throw new ArgumentNullException(nameof(movementStrategy));
+
+            // Start State
+            TransitionTo(EnemyStateType.Patrol);
         }
 
-        public void SetState(IEnemyState newState)
+        public void TransitionTo(EnemyStateType stateType)
         {
-            _currentState = newState;
+            _currentState = _stateFactory.Create(stateType);
             _currentState.Enter(this);
         }
 
-        // Wordt aangeroepen vanuit PlayingState bij collision
         public void Attack()
         {
-            // Alleen switchen als we niet al aanvallen
             if (!(_currentState is AttackState))
             {
-                SetState(new AttackState());
+                TransitionTo(EnemyStateType.Attack);
             }
         }
 
@@ -78,47 +87,23 @@ namespace PlatformGame.Classes.Enemy
 
         public void Draw(SpriteBatch spriteBatch, Vector2 cameraOffset)
         {
-            // Geef camera offset door aan de state (die roept DrawHelper aan)
-            // Omdat DrawHelper de offset nodig heeft slaan we hem tijdelijk op of passen we DrawHelper aan.
             _currentCameraOffset = cameraOffset;
             _currentState.Draw(spriteBatch, this);
         }
 
-        private Vector2 _currentCameraOffset;
-
-        // Hulpfunctie om dubbele draw code in states te voorkomen
         public void DrawHelper(SpriteBatch spriteBatch)
         {
+            if (CurrentAnimation == null || CurrentTexture == null) return;
+
             Rectangle sourceRect = CurrentAnimation.CurrentFrame;
             float scale = (float)Size / sourceRect.Height;
-
-            // Origin onderaan/midden voor stabiele positie tijdens animatiewissels
             Vector2 origin = new Vector2(sourceRect.Width / 2f, sourceRect.Height / 2f);
-
-            // Positie berekenen
             float centerX = Position.X + (Size / 2f);
             float centerY = Position.Y + Size - (sourceRect.Height * scale / 2f);
-
             Vector2 drawPos = new Vector2(centerX, centerY) + _currentCameraOffset;
-
             SpriteEffects effect = Direction < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
             spriteBatch.Draw(CurrentTexture, drawPos, sourceRect, Color.White, 0f, origin, scale, effect, 0f);
-        }
-
-        public bool ShouldTurnAround()
-        {
-            float distance = Position.X - StartPosition.X;
-            if (distance >= PatrolDistance || distance <= -PatrolDistance) return true;
-
-            int nextX = Direction > 0 ? (int)(Position.X + Size + 5) / TileSize : (int)(Position.X - 5) / TileSize;
-            int groundY = (int)(Position.Y + Size + 2) / TileSize;
-            int wallY = (int)(Position.Y + Size / 2) / TileSize;
-
-            bool hasGround = CollisionProvider.HasCollision(nextX, groundY);
-            bool hasWall = CollisionProvider.HasCollision(nextX, wallY);
-
-            return !hasGround || hasWall;
         }
 
         private Rectangle CalculateBounds()
