@@ -12,6 +12,11 @@ namespace PlatformGame.Classes.Enemy
     // maar tekent niet zelf en berekent
     // SRP heeft duidelijke verantwoorderlijkheid
     // DIP is sterker omdat Enemy nu afhankelijk is van IEnemyRenderer en IBoundsProvider abstracties
+    // Enemy implementeert 3 interfaces omdat elke interface een verschillende rol dient
+    // Enemy gebruikt 3 interfaces omdat elke rol apart wordt afgebakend: IEnemy is de publieke buitenkant voor de game (update, draw, bounds, attack)
+    // IEnemyContext is intern voor states/strategies (positie, animatie, movement, state‑transities)
+    // IEnemyRenderData levert alleen leesbare render‑data aan de renderer
+    // Zo voldoe je aan Interface Segregation: elke kant krijgt precies de info die hij nodig heeft, zonder onnodige koppeling
     public class Enemy : IEnemy, IEnemyContext, IEnemyRenderData
     {
         // Properties

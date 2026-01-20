@@ -14,7 +14,7 @@ namespace PlatformGame.Interfaces.Character
     public interface ISprite
     {
         // SRP Doet alleen animatie. Weet niets van physics of input.
-        // ISP De renderer (in PlayingState.Draw()) hoeft alleen CurrentFrame en CurrentTexture te kennen. N
+        // ISP De renderer (in PlayingState.Draw()) hoeft alleen CurrentFrame en CurrentTexture te kennen.
         // iet hoe animaties geregistreerd worden.
         Rectangle CurrentFrame { get; }
         Texture2D CurrentTexture { get; }
