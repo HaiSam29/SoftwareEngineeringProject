@@ -16,6 +16,10 @@ namespace PlatformGame.Classes.Character
     // SRP puur een data container en coördinator berekent zelf geen physics of collision
     // ISP implementeert ICharacterContext(voor de states) en ICharacter (voor de game loop) zodat buitenstaanders alleen zien wat ze moeten zien.
     // DIP Alle hulpmiddelen(Input, Physics, Collision) komen binnen via constructor 
+    // Character gebruikt 2 interfaces omdat het twee verschillende rollen heeft:
+    // ICharacter is de publieke buitenkant voor de game (positie, huidige state, facing, health, hitbox, update en damage)
+    // ICharacterContext is speciaal voor de interne states/strategies, met extra toegang tot physics, input, collision, strategies, timers en TransitionTo
+    // Dit volgt het Interface Segregation Principle: externe systemen zien alleen wat ze nodig hebben, terwijl state‑classes met een rijkere maar interne view werken
 
     public class Character : ICharacter, ICharacterContext
     {
